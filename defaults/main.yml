@@ -1,0 +1,184 @@
+---
+
+####################
+# Certbot defaults #
+####################
+
+COMPUTATE_CERTBOT_DOMAIN_NAME: "..."
+
+#####################################
+# opendatapolicing system defaults #
+#####################################
+
+# The name of this application. 
+PROJECT_NAME: "..."
+# The name of this application. 
+GITHUB_ORG: "..."
+# The default source code directory for the computate application which helps generate and translate most the code. 
+COMPUTATE_SRC: "/usr/local/src/computate"
+# The default source code directory for the project. 
+PROJECT_SRC: "/usr/local/src/{{PROJECT_NAME}}"
+# The default language of the project code which is US English. 
+PROJECT_LANG: "enUS"
+# The default config file for the project. 
+PROJECT_CONFIG: "{{PROJECT_SRC}}/config/{{PROJECT_NAME}}.config"
+# The US English config file for the project. 
+PROJECT_CONFIG_enUS: "{{PROJECT_SRC}}/config/{{PROJECT_NAME}}-enUS.config"
+# The systemd service name for project that generates and translates most of the code. 
+PROJECT_SERVICE: "watch-{{PROJECT_NAME}}"
+# The systemd service file for project that generates and translates most of the code. 
+PROJECT_SYSTEMD: "/usr/lib/systemd/system/{{PROJECT_SERVICE}}.service"
+# The main git repository for the project. 
+PROJECT_REPO: "git@github.com:{{ GITHUB_ORG }}/{{ PROJECT_NAME }}.git"
+# The name of this application. 
+PROJECT_STATIC_NAME: "{{ PROJECT_NAME }}-static"
+# The name of this application. 
+PROJECT_ANSIBLE_NAME: "{{ PROJECT_NAME }}-ansible"
+# The static files git repository for the project. 
+PROJECT_STATIC_REPO: "git@github.com:{{ GITHUB_ORG }}/{{ PROJECT_STATIC_NAME }}.git"
+# The Ansible automation git repository for the project. 
+PROJECT_ANSIBLE_REPO: "git@github.com:{{ GITHUB_ORG }}/{{ PROJECT_ANSIBLE_NAME }}.git"
+
+######################
+# Zookeeper defaults #
+######################
+
+# The default hostname for the Zookeeper cluster manager. 
+ZOOKEEPER_HOST_NAME: "localhost"
+# The default port that Zookeeper runs to manage the cluster. 
+ZOOKEEPER_PORT: 2181
+
+#################
+# Solr defaults #
+#################
+
+# The installation directory of Solr. 
+SOLR_OPT: /opt/solr
+# The default hostname for the Solr search engine. 
+SOLR_HOST_NAME: localhost
+# The default port that Solr runs. 
+SOLR_PORT: 8983
+
+#######################
+# PostgreSQL defaults #
+#######################
+
+# The default hostname for the PostreSQL database. 
+POSTGRES_HOST_NAME: "localhost"
+# The default username that the PostgreSQL server runs with. 
+POSTGRES_BECOME_USER: "postgres"
+# The default path to the PostgreSQL hba file to manage user permissions. 
+POSTGRES_HBA_CONF: "/var/lib/pgsql/data/pg_hba.conf"
+# The default PostgreSQL service name. 
+POSTGRES_SERVICE: "postgresql"
+
+#####################################
+# opendatapolicing global defaults #
+#####################################
+
+# The base URL where the static files will point to.  
+PROJECT_STATIC_BASE_URL: "https://example.neocities.org"
+# The number of background worker executors that may run. 
+PROJECT_NUMBER_EXECUTORS: 5
+# The properties file where the SSL/TLS encryption is configured. 
+PROJECT_SSL_PROPERTIES_FILENAME: opendatapolicing-keystore.properties
+
+#################################################
+# opendatapolicing English in the US defaults #
+#################################################
+
+# The domain name of the site. 
+PROJECT_DOMAIN_NAME_ENUS: "example.com"
+# The host name of the site. 
+PROJECT_SITE_HOST_NAME_ENUS: "opendatapolicing-dev.{{PROJECT_DOMAIN_NAME_ENUS}}"
+# The port of the site. 
+PROJECT_SITE_PORT_ENUS: "10781"
+# The base URL of the site. 
+PROJECT_SITE_BASE_URL_ENUS: "http://localhost:{{PROJECT_SITE_PORT_ENUS}}"
+# The Solr collection of the site. 
+PROJECT_SOLR_COLLECTION_ENUS: "opendatapolicing"
+# The timezone of the site. 
+PROJECT_SITE_ZONE_ENUS: "America/Denver"
+# The PostgreSQL database host name of the site. 
+PROJECT_DB_HOST_NAME_ENUS: "localhost"
+# The PostgreSQL database user name of the site. 
+PROJECT_DB_USER_ENUS: computate
+# The PostgreSQL database password of the site. 
+PROJECT_DB_PASSWORD_ENUS: "..."
+# The PostgreSQL database name of the site. 
+PROJECT_DB_NAME_ENUS: opendatapolicing
+# The Java main class of the site. 
+PROJECT_JAVA_MAIN_CLASS_ENUS: com.opendatapolicing.enus.vertx.AppVertx
+# The backup directory of the site. 
+PROJECT_BACKUP_DIR_ENUS: /usr/local/src/opendatapolicing-static/data/enUS
+# The restore directory of the site. 
+PROJECT_RESTORE_DIR_ENUS: ~/backup/opendatapolicing-dev/enUS
+
+#################
+# SMTP defaults #
+#################
+
+# The email SMTP host name. 
+EMAIL_HOST_NAME: smtp.example.com
+# The email SMTP port. 
+EMAIL_PORT: 465
+# The email SMTP from email address. 
+EMAIL_FROM: "..."
+# Whether email SMTP SSL/TLS encryption is enabled. 
+EMAIL_SSL: true
+# Whether email SMTP username password authentication is enabled. 
+EMAIL_AUTH: true
+# The email SMTP username. 
+EMAIL_USER: "..."
+EMAIL_PASSWORD: "..."
+
+#######################################
+# OpenID Connect auth server defaults #
+#######################################
+
+# The Auth realm. 
+AUTH_REALM: EXAMPLE.COM
+# The Auth client or resource. 
+AUTH_RESOURCE: example.com
+# The Auth secret. 
+AUTH_SECRET: "..."
+# The Auth URL. 
+AUTH_URL: https://sso.example.com/auth
+
+####################
+# SSL/TLS defaults #
+####################
+
+# The keystore alias. 
+SSL_ALIAS: "{{PROJECT_DOMAIN_NAME_ENUS}}"
+# The keystore directory. 
+SSL_KEYSTORE_PATH: /opt/keystore
+# The keystore properties filename. 
+SSL_PROPERTIES_FILENAME: "{{PROJECT_SSL_PROPERTIES_FILENAME}}"
+# The keystore filename. 
+SSL_JKS_FILENAME: "{{SSL_ALIAS}}.jks"
+# The keystore path. 
+SSL_JKS_PATH: "{{SSL_KEYSTORE_PATH}}/{{SSL_JKS_FILENAME}}"
+# The certificate filename. 
+SSL_CRT_FILENAME: "{{SSL_ALIAS}}.crt"
+# The certificate path. 
+SSL_CRT_PATH: "{{SSL_KEYSTORE_PATH}}/{{SSL_CRT_FILENAME}}"
+# The private key filename. 
+SSL_KEY_FILENAME: "{{SSL_ALIAS}}.key"
+# The private key path. 
+SSL_KEY_PATH: "{{SSL_KEYSTORE_PATH}}/{{SSL_KEY_FILENAME}}"
+# The p12 file password. 
+SSL_P12_PASSWORD: "..."
+# The keystore file password. 
+SSL_JKS_PASSWORD: "{{SSL_P12_PASSWORD}}"
+# The keystore file base64 encoded (base64 -w 0 /opt/keystore/heytate.com.jks). 
+SSL_JKS_BASE64: "..."
+# The jceks file base64 encoded (base64 -w 0 /opt/keystore/heytate.com.jceks). 
+SSL_JCEKS_BASE64: "..."
+
+####################
+# Ansible defaults #
+####################
+
+# Add to an ansible-vault the username of your user on your computer (echo $HOSTNAME). 
+USER_NAME: "{{ lookup('env', 'USER') }}"
