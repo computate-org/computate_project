@@ -35,12 +35,12 @@
     owner: "{{USER_NAME}}"
     group: "{{USER_NAME}}"
   become: yes
-  when: not PROJECT_GIT_DIR.stat.exists and not PROJECT_POM.exists
+  when: not PROJECT_GIT_DIR.stat.exists and not PROJECT_POM.stat.exists
 - name: Clone the {{PROJECT_NAME}} source code
   git:
     repo: "{{PROJECT_REPO}}"
     dest: "{{PROJECT_SRC}}"
-  when: not PROJECT_GIT_DIR.stat.exists and not PROJECT_POM.exists
+  when: not PROJECT_GIT_DIR.stat.exists and not PROJECT_POM.stat.exists
 
 ##############
 # Static dir #
