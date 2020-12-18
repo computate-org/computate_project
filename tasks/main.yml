@@ -1,20 +1,20 @@
 ---
-- stat: 
+- stat:
     path: /usr/bin/git
   register: GIT_EXISTS
 - name: Install git dependencies
   package:
     name: [git]
   become: yes
-  when: GIT_EXISTS.stat.exists == false
-- stat: 
+  when: not GIT_EXISTS.stat.exists
+- stat:
     path: /usr/bin/javac
   register: JAVAC_EXISTS
 - name: Install java dependencies
   package:
     name: [git,java-latest-openjdk-devel,java-latest-openjdk]
   become: yes
-  when: JAVAC_EXISTS.stat.exists == false
+  when: not JAVAC_EXISTS.stat.exists
 
 ###############
 # Project dir #
@@ -31,12 +31,12 @@
     owner: "{{USER_NAME}}"
     group: "{{USER_NAME}}"
   become: yes
-  when: PROJECT_GIT_DIR.stat.exists == False
+  when: not PROJECT_GIT_DIR.stat.exists
 - name: Clone the {{PROJECT_NAME}} source code
   git:
     repo: "{{PROJECT_REPO}}"
     dest: "{{PROJECT_SRC}}"
-  when: PROJECT_GIT_DIR.stat.exists == False
+  when: not PROJECT_GIT_DIR.stat.exists
 
 ##############
 # Static dir #
@@ -53,12 +53,12 @@
     owner: "{{USER_NAME}}"
     group: "{{USER_NAME}}"
   become: yes
-  when: PROJECT_STATIC_GIT_DIR.stat.exists == False
+  when: not PROJECT_STATIC_GIT_DIR.stat.exists
 - name: Clone the {{PROJECT_STATIC_NAME}} source code
   git:
     repo: "{{ PROJECT_STATIC_REPO }}"
     dest: "{{ PROJECT_SRC }}-static"
-  when: PROJECT_STATIC_GIT_DIR.stat.exists == False
+  when: not PROJECT_STATIC_GIT_DIR.stat.exists
 
 ###############
 # Ansible dir #
@@ -75,12 +75,12 @@
     owner: "{{USER_NAME}}"
     group: "{{USER_NAME}}"
   become: yes
-  when: PROJECT_ANSIBLE_GIT_DIR.stat.exists == False
+  when: not PROJECT_ANSIBLE_GIT_DIR.stat.exists
 - name: Clone the {{PROJECT_ANSIBLE_NAME}} source code
   git:
     repo: "{{ PROJECT_ANSIBLE_REPO }}"
     dest: "{{ PROJECT_SRC }}-ansible"
-  when: PROJECT_ANSIBLE_GIT_DIR.stat.exists == False
+  when: not PROJECT_ANSIBLE_GIT_DIR.stat.exists
 
 ###########
 # Service #
@@ -178,9 +178,9 @@
   when: PROJECT_SITE_BASE_URL_ENUS is regex("^https://")
 - name: Build the source code in /usr/local/src/computate
   shell: "mvn clean install"
-  args: 
+  args:
     chdir: "/usr/local/src/computate"
 - name: Build the source code in {{PROJECT_SRC}}
   shell: "mvn clean install"
-  args: 
+  args:
     chdir: "{{PROJECT_SRC}}"
