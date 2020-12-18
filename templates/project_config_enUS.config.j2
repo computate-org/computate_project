@@ -1,13 +1,13 @@
-appName = opendatapolicing
+appName = {{PROJECT_NAME}}
 
-[opendatapolicing]
+[{{PROJECT_NAME}}]
 languageName=enUS
 appPath_enUS={{PROJECT_SRC}}
 domainName=heytate.com
-domainPackageName=org.opendatapolicing
+domainPackageName={{ PROJECT_JAVA_PACKAGE }}
 suffixSrcMainJava=/src/main/java
 suffixSrcGenJava=/src/gen/java
-relativePathsToWatch=src/main/java/org/opendatapolicing/enus
+relativePathsToWatch=src/main/java/{{ PROJECT_JAVA_PACKAGE | replace('.', '/') }}
 jdbcHost="{{POSTGRES_HOST_NAME}}"
 jdbcPort=5432
 jdbcDatabase="{{PROJECT_DB_NAME_ENUS}}"

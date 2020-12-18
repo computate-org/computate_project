@@ -6,9 +6,9 @@
 
 COMPUTATE_CERTBOT_DOMAIN_NAME: "..."
 
-#####################################
-# opendatapolicing system defaults #
-#####################################
+###########################
+# project system defaults #
+###########################
 
 # The name of this application. 
 PROJECT_NAME: "..."
@@ -72,31 +72,31 @@ POSTGRES_HBA_CONF: "/var/lib/pgsql/data/pg_hba.conf"
 # The default PostgreSQL service name. 
 POSTGRES_SERVICE: "postgresql"
 
-#####################################
-# opendatapolicing global defaults #
-#####################################
+###########################
+# project global defaults #
+###########################
 
 # The base URL where the static files will point to.  
 PROJECT_STATIC_BASE_URL: "https://example.neocities.org"
 # The number of background worker executors that may run. 
 PROJECT_NUMBER_EXECUTORS: 5
 # The properties file where the SSL/TLS encryption is configured. 
-PROJECT_SSL_PROPERTIES_FILENAME: opendatapolicing-keystore.properties
+PROJECT_SSL_PROPERTIES_FILENAME: {{PROJECT_NAME}}-keystore.properties
 
-#################################################
-# opendatapolicing English in the US defaults #
-#################################################
+######################################
+# project English in the US defaults #
+######################################
 
 # The domain name of the site. 
 PROJECT_DOMAIN_NAME_ENUS: "example.com"
 # The host name of the site. 
-PROJECT_SITE_HOST_NAME_ENUS: "opendatapolicing-dev.{{PROJECT_DOMAIN_NAME_ENUS}}"
+PROJECT_SITE_HOST_NAME_ENUS: "{{PROJECT_NAME}}-dev.{{PROJECT_DOMAIN_NAME_ENUS}}"
 # The port of the site. 
 PROJECT_SITE_PORT_ENUS: "10781"
 # The base URL of the site. 
 PROJECT_SITE_BASE_URL_ENUS: "http://localhost:{{PROJECT_SITE_PORT_ENUS}}"
 # The Solr collection of the site. 
-PROJECT_SOLR_COLLECTION_ENUS: "opendatapolicing"
+PROJECT_SOLR_COLLECTION_ENUS: "{{PROJECT_NAME}}"
 # The timezone of the site. 
 PROJECT_SITE_ZONE_ENUS: "America/Denver"
 # The PostgreSQL database host name of the site. 
@@ -106,13 +106,13 @@ PROJECT_DB_USER_ENUS: computate
 # The PostgreSQL database password of the site. 
 PROJECT_DB_PASSWORD_ENUS: "..."
 # The PostgreSQL database name of the site. 
-PROJECT_DB_NAME_ENUS: opendatapolicing
+PROJECT_DB_NAME_ENUS: "{{PROJECT_NAME}}"
 # The Java main class of the site. 
-PROJECT_JAVA_MAIN_CLASS_ENUS: com.opendatapolicing.enus.vertx.AppVertx
+PROJECT_JAVA_MAIN_CLASS_ENUS: "{{ PROJECT_JAVA_PACKAGE }}.vertx.AppVertx"
 # The backup directory of the site. 
-PROJECT_BACKUP_DIR_ENUS: /usr/local/src/opendatapolicing-static/data/enUS
+PROJECT_BACKUP_DIR_ENUS: "/usr/local/src/{{PROJECT_NAME}}-static/data/enUS"
 # The restore directory of the site. 
-PROJECT_RESTORE_DIR_ENUS: ~/backup/opendatapolicing-dev/enUS
+PROJECT_RESTORE_DIR_ENUS: "~/backup/{{PROJECT_NAME}}-dev/enUS"
 
 #################
 # SMTP defaults #

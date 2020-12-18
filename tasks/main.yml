@@ -92,7 +92,7 @@
 
 - name: Create the {{PROJECT_NAME}} systemd service {{PROJECT_SYSTEMD}}. 
   template:
-    src: opendatapolicing_service.j2
+    src: project_service.j2
     dest: "{{PROJECT_SYSTEMD}}"
   become: yes
 - name: Create the {{PROJECT_NAME}} config dir. 
@@ -103,8 +103,8 @@
     group: "{{USER_NAME}}"
 - name: Create the {{PROJECT_NAME}} enUS config. 
   template:
-    src: opendatapolicing_config_enUS.config.j2
-    dest: "{{PROJECT_SRC}}/config/opendatapolicing.config"
+    src: project_config_enUS.config.j2
+    dest: "{{PROJECT_SRC}}/config/{{PROJECT_NAME}}.config"
     owner: "{{USER_NAME}}"
     group: "{{USER_NAME}}"
   become: yes
