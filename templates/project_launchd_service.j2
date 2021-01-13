@@ -5,6 +5,9 @@
                 <key>Label</key>
                 <string>org.project</string>
 
+                <key>WorkingDirectory</key>
+                <string>{{ item.PROJECT_SRC }}</string>
+
                 <key>ProgramArguments</key>
                 <array>
                         <string>{{ COMPUTATE_SRC }}/bin/enUS/watch.sh</string>
@@ -12,6 +15,14 @@
 
                 <key>EnvironmentVariables</key>
                 <dict>
+                        <key>appName</key>
+                        <string>{{ item.PROJECT_NAME }}</string>
+                        <key>appPath</key>
+                        <string>{{ item.PROJECT_SRC }}</string>
+                        <key>appComputatePath</key>
+                        <string>{{ COMPUTATE_SRC }}</string>
+                        <key>lang</key>
+                        <string>{{ PROJECT_LANG }}</string>
                 </dict>
 
                 <key>KeepAlive</key>

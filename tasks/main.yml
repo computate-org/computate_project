@@ -123,6 +123,7 @@
   template:
     src: project_launchd_service.j2
     dest: "~/Library/LaunchAgents/org.project.plist"
+  loop: "{{ PROJECT_SERVICES }}"
   when: ansible_pkg_mgr == 'homebrew'
 - name: Load the {{ PROJECT_NAME }} launchd service {{ PROJECT_SYSTEMD }}.
   shell: launchctl load ~/Library/LaunchAgents/org.project.plist
