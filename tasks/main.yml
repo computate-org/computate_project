@@ -96,6 +96,7 @@
     dest: "/usr/lib/systemd/system/watch-{{ item.PROJECT_NAME }}.service"
   become: yes
   loop: "{{ PROJECT_SERVICES }}"
+  when: ansible_pkg_mgr != 'homebrew'
 - name: Create the {{ item.PROJECT_NAME }} config dirs. 
   file:
     name: "{{ item.PROJECT_SRC }}/config"
@@ -113,6 +114,7 @@
     daemon_reload: yes
   become: yes
   loop: "{{ PROJECT_SERVICES }}"
+  when: ansible_pkg_mgr != 'homebrew'
 - name: Start and enable the {{ item.PROJECT_NAME }} services. 
   service:
     name: "watch-{{ item.PROJECT_NAME }}"
@@ -120,6 +122,23 @@
     state: restarted
   become: yes
   loop: "{{ PROJECT_SERVICES }}"
+  when: ansible_pkg_mgr != 'homebrew'
+- name: Create the {{ PROJECT_NAME }} launchd service {{ PROJECT_SYSTEMD }}.
+  template:
+    src: project_launchd_service.j2
+    dest: "~/Library/LaunchAgents/org.project.plist"
+  when: ansible_pkg_mgr == 'homebrew'
+- name: Load the {{ PROJECT_NAME }} launchd service {{ PROJECT_SYSTEMD }}.
+  shell: launchctl load ~/Library/LaunchAgents/org.project.plist
+  when: ansible_pkg_mgr == 'homebrew'
+#- name: Stop the {{ PROJECT_NAME }} launchd service {{ PROJECT_SYSTEMD }} before restarting it.
+#  shell: /opt/solr/bin/solr stop
+#  when: ansible_pkg_mgr == 'homebrew'
+- name: Start the {{ PROJECT_NAME }} launchd service {{ PROJECT_SYSTEMD }}.
+  shell: launchctl start org.project
+  when: ansible_pkg_mgr == 'homebrew'
+  changed_when: false
+
 
 ##############
 # PostgreSQL #
@@ -159,18 +178,23 @@
     name: "{{ POSTGRES_SERVICE }}"
     state: restarted
   become: yes
+  when: ansible_pkg_mgr != 'homebrew'
+- name: Start the {{ POSTGRES_NAME }} launchd service.
+  shell: launchctl start org.postgresql
+  when: ansible_pkg_mgr == 'homebrew'
+  changed_when: false
 
 ###############
 # Solr Search #
 ###############
 
 - name: Check for existing solr collection enUS
-  shell: "{{ SOLR_OPT }}/server/scripts/cloud-scripts/zkcli.sh -zkhost localhost:{{ ZOOKEEPER_PORT }} -cmd ls /collections/{{ PROJECT_SOLR_COLLECTION_ENUS }}"
+  shell: "{{ SOLR_OPT }}/server/scripts/cloud-scripts/zkcli.sh -zkhost localhost:{{ ZOOKEEPER_PORT }} -cmd ls /cores/{{ PROJECT_SOLR_COLLECTION_ENUS }}"
   ignore_errors: yes
   register: SOLR_COLLECTION_EXISTS_ENUS
   changed_when: false
 - name: Create collection in solr enUS
-  shell: "{{ SOLR_OPT }}/bin/solr create_collection -n computate -c {{ PROJECT_SOLR_COLLECTION_ENUS }}"
+  shell: "{{ SOLR_OPT }}/bin/solr create_core -n computate -c {{ PROJECT_SOLR_COLLECTION_ENUS }}"
   when: SOLR_COLLECTION_EXISTS_ENUS.rc != 0
 
 ###########
