@@ -6,6 +6,8 @@
   package:
     name: [git]
   become: yes
+  vars:
+    ansible_python_interpreter: /usr/bin/python
   when: not GIT_EXISTS.stat.exists
 - stat:
     path: /usr/bin/javac
@@ -14,6 +16,8 @@
   package:
     name: [git,java-latest-openjdk-devel,java-latest-openjdk]
   become: yes
+  vars:
+    ansible_python_interpreter: /usr/bin/python
   when: not JAVAC_EXISTS.stat.exists
 
 ###############
