@@ -39,7 +39,7 @@
     owner: "{{ USER_NAME }}"
   become: yes
   when: not PROJECT_GIT_DIR.stat.exists and not PROJECT_POM.stat.exists
-- name: Clone the {{ PROJECT_NAME }} source code
+- name: Clone the {{ PROJECT_REPO }} source code into {{ PROJECT_SRC }}
   git:
     repo: "{{ PROJECT_REPO }}"
     dest: "{{ PROJECT_SRC }}"
@@ -60,7 +60,7 @@
     owner: "{{ USER_NAME }}"
   become: yes
   when: not PROJECT_STATIC_GIT_DIR.stat.exists
-- name: Clone the {{ PROJECT_STATIC_REPO }} source code
+- name: Clone the {{ PROJECT_STATIC_REPO }} source code into {{ PROJECT_SRC }}-static
   git:
     repo: "{{ PROJECT_STATIC_REPO }}"
     dest: "{{ PROJECT_SRC }}-static"
@@ -81,7 +81,7 @@
     owner: "{{ USER_NAME }}"
   become: yes
   when: not PROJECT_ANSIBLE_GIT_DIR.stat.exists
-- name: Clone the {{ PROJECT_ANSIBLE_NAME }} source code
+- name: Clone the {{ PROJECT_ANSIBLE_REPO }} source code into {{ PROJECT_SRC }}-ansible
   git:
     repo: "{{ PROJECT_ANSIBLE_REPO }}"
     dest: "{{ PROJECT_SRC }}-ansible"

@@ -25,11 +25,22 @@ solrUrl=http://{{ SOLR_HOST_NAME }}:{{ SOLR_PORT }}/solr/{{ PROJECT_SOLR_COLLECT
 solrUrlComputate=http://{{ SOLR_HOST_NAME }}:{{ SOLR_PORT }}/solr/computate
 apiContactEmail={{ EMAIL_FROM }}
 siteZone={{ PROJECT_SITE_ZONE_ENUS }}
-siteWriteMethods=html
-siteWriteMethods=htmlMeta
-siteWriteMethods=htmlScripts
-siteWriteMethods=htmlScript
-siteWriteMethods=htmlStyles
-siteWriteMethods=htmlStyle
-siteWriteMethods=htmlBody
 staticBaseUrl={{ PROJECT_STATIC_BASE_URL }}
+staticPath={{ item.PROJECT_SRC }}-static
+emailHost=
+emailPort=
+emailSsl=
+emailAuth=
+emailUsername=
+emailPassword=
+emailFrom=
+emailAdmin=
+sqlTables={{ PROJECT_CONFIG.sqlTables | default(true) }}
+// Set the userKey of the user creating an object in the database. 
+enableUserKey={{ PROJECT_CONFIG.enableUserKey | default(true) | lower }}
+// Set the sessionId of the user session creating an object in the database. 
+enableSessionId={{ PROJECT_CONFIG.enableSessionId | default(true) | lower }}
+// Enable an object in the database to be deleted. 
+enableDeleted={{ PROJECT_CONFIG.enableDeleted | default(true) | lower }}
+// Enable an object in the database to be archived. 
+enableArchived={{ PROJECT_CONFIG.enableArchived | default(true) | lower }}
