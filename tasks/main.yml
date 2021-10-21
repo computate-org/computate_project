@@ -1,138 +1,148 @@
 ---
-- stat:
+- name: Check if git binary exists
+  stat:
     path: /usr/bin/git
   register: GIT_EXISTS
 - name: Install git dependencies
   package:
     name: [git]
+    state: present
   become: yes
   vars:
-    ansible_python_interpreter: /usr/bin/python
+    ansible_python_interpreter: "{{ SYSTEM_PYTHON }}"
   when: not GIT_EXISTS.stat.exists
-- stat:
+- name: Check if javac binary exists
+  stat:
     path: /usr/bin/javac
   register: JAVAC_EXISTS
 - name: Install java dependencies
   package:
     name: [git,java-1.8.0-openjdk]
+    state: present
   become: yes
   vars:
-    ansible_python_interpreter: /usr/bin/python
+    ansible_python_interpreter: "{{ SYSTEM_PYTHON }}"
   when: not JAVAC_EXISTS.stat.exists
+- name: "install python pip dependencies"
+  pip:
+    name: psycopg2-binary
+    state: present
+  vars:
+    ansible_python_interpreter: "{{ APP_PYTHON }}"
 
 ###############
 # Project dir #
 ###############
 
-- name: Check for the {{ PROJECT_NAME }} .git directory
+- name: Check for the {{ APP_NAME }} .git directory
   stat:
-    path: "{{ PROJECT_SRC }}/.git"
-  register: PROJECT_GIT_DIR
-- name: Check for the {{ PROJECT_NAME }} pom.xml file
+    path: "{{ APP_SRC }}/.git"
+  register: APP_GIT_DIR
+- name: Check for the {{ APP_NAME }} pom.xml file
   stat:
-    path: "{{ PROJECT_SRC }}/pom.xml"
-  register: PROJECT_POM
-- name: Create the {{ PROJECT_NAME }} source directory {{ PROJECT_SRC }}
+    path: "{{ APP_SRC }}/pom.xml"
+  register: APP_POM
+- name: Create the {{ APP_NAME }} source directory {{ APP_SRC }}
   file:
-    name: "{{ PROJECT_SRC }}"
+    name: "{{ APP_SRC }}"
     state: directory
     owner: "{{ USER_NAME }}"
   become: yes
-  when: not PROJECT_GIT_DIR.stat.exists and not PROJECT_POM.stat.exists
-- name: Clone the {{ PROJECT_REPO }} source code into {{ PROJECT_SRC }}
+  when: not APP_GIT_DIR.stat.exists and not APP_POM.stat.exists
+- name: Clone the {{ APP_REPO }} source code into {{ APP_SRC }}
   git:
-    repo: "{{ PROJECT_REPO }}"
-    dest: "{{ PROJECT_SRC }}"
-  when: not PROJECT_GIT_DIR.stat.exists and not PROJECT_POM.stat.exists
+    repo: "{{ APP_REPO }}"
+    dest: "{{ APP_SRC }}"
+  when: not APP_GIT_DIR.stat.exists and not APP_POM.stat.exists
 
 ##############
 # Static dir #
 ##############
 
-- name: Check for the {{ PROJECT_STATIC_NAME }} .git directory
+- name: Check for the {{ APP_STATIC_NAME }} .git directory
   stat:
-    path: "{{ PROJECT_SRC }}-static/.git"
-  register: PROJECT_STATIC_GIT_DIR
-- name: Create the {{ PROJECT_STATIC_NAME }} source directory {{ PROJECT_SRC }}-static
+    path: "{{ APP_SRC }}-static/.git"
+  register: APP_STATIC_GIT_DIR
+- name: Create the {{ APP_STATIC_NAME }} source directory {{ APP_SRC }}-static
   file:
-    name: "{{ PROJECT_SRC }}-static"
+    name: "{{ APP_SRC }}-static"
     state: directory
     owner: "{{ USER_NAME }}"
   become: yes
-  when: not PROJECT_STATIC_GIT_DIR.stat.exists
-- name: Clone the {{ PROJECT_STATIC_REPO }} source code into {{ PROJECT_SRC }}-static
+  when: not APP_STATIC_GIT_DIR.stat.exists
+- name: Clone the {{ APP_STATIC_REPO }} source code into {{ APP_SRC }}-static
   git:
-    repo: "{{ PROJECT_STATIC_REPO }}"
-    dest: "{{ PROJECT_SRC }}-static"
-  when: not PROJECT_STATIC_GIT_DIR.stat.exists
+    repo: "{{ APP_STATIC_REPO }}"
+    dest: "{{ APP_SRC }}-static"
+  when: not APP_STATIC_GIT_DIR.stat.exists
 
 ###############
 # Ansible dir #
 ###############
 
-- name: Check for the {{ PROJECT_ANSIBLE_NAME }} .git directory
+- name: Check for the {{ APP_ANSIBLE_NAME }} .git directory
   stat:
-    path: "{{ PROJECT_SRC }}-ansible/.git"
-  register: PROJECT_ANSIBLE_GIT_DIR
-- name: Create the {{ PROJECT_ANSIBLE_NAME }} source directory {{ PROJECT_SRC }}-ansible
+    path: "{{ APP_SRC }}-ansible/.git"
+  register: APP_ANSIBLE_GIT_DIR
+- name: Create the {{ APP_ANSIBLE_NAME }} source directory {{ APP_SRC }}-ansible
   file:
-    name: "{{ PROJECT_SRC }}-ansible"
+    name: "{{ APP_SRC }}-ansible"
     state: directory
     owner: "{{ USER_NAME }}"
   become: yes
-  when: not PROJECT_ANSIBLE_GIT_DIR.stat.exists
-- name: Clone the {{ PROJECT_ANSIBLE_REPO }} source code into {{ PROJECT_SRC }}-ansible
+  when: not APP_ANSIBLE_GIT_DIR.stat.exists
+- name: Clone the {{ APP_ANSIBLE_REPO }} source code into {{ APP_SRC }}-ansible
   git:
-    repo: "{{ PROJECT_ANSIBLE_REPO }}"
-    dest: "{{ PROJECT_SRC }}-ansible"
-  when: not PROJECT_ANSIBLE_GIT_DIR.stat.exists
+    repo: "{{ APP_ANSIBLE_REPO }}"
+    dest: "{{ APP_SRC }}-ansible"
+  when: not APP_ANSIBLE_GIT_DIR.stat.exists
 
 ###########
 # Service #
 ###########
 
-- name: Create the {{ PROJECT_NAME }} systemd services. 
+- name: Create the {{ APP_NAME }} systemd services. 
   template:
-    src: project_service.j2
-    dest: "/usr/lib/systemd/system/watch-{{ item.PROJECT_NAME }}.service"
+    src: project_service
+    dest: "/usr/lib/systemd/system/watch-{{ item.APP_NAME }}.service"
   become: yes
-  loop: "{{ PROJECT_SERVICES }}"
+  loop: "{{ APP_SERVICES }}"
   when: ansible_pkg_mgr != 'homebrew'
-- name: Create the {{ item.PROJECT_NAME }} config dirs. 
+- name: Create the {{ item.APP_NAME }} config dirs. 
   file:
-    name: "{{ item.PROJECT_SRC }}/config"
+    name: "{{ item.APP_SRC }}/config"
     state: directory
     owner: "{{ USER_NAME }}"
-  loop: "{{ PROJECT_SERVICES }}"
-- name: Create the {{ item.PROJECT_NAME }} enUS configs. 
+  loop: "{{ APP_SERVICES }}"
+- name: Create the {{ item.APP_NAME }} enUS configs. 
   template:
-    src: project_config_enUS.config.j2
-    dest: "{{ item.PROJECT_SRC }}/config/{{ item.PROJECT_NAME }}.config"
-  loop: "{{ PROJECT_SERVICES }}"
+    src: project_config_enUS.yml
+    dest: "{{ item.APP_SRC }}/config/{{ item.APP_NAME }}.config"
+  loop: "{{ APP_SERVICES }}"
 - name: Reload the services. 
   systemd:
     daemon_reload: yes
   become: yes
-  loop: "{{ PROJECT_SERVICES }}"
+  loop: "{{ APP_SERVICES }}"
   when: ansible_pkg_mgr != 'homebrew'
-- name: Start and enable the {{ item.PROJECT_NAME }} services. 
+- name: Start and enable the {{ item.APP_NAME }} services. 
   service:
-    name: "watch-{{ item.PROJECT_NAME }}"
+    name: "watch-{{ item.APP_NAME }}"
     enabled: yes
     state: restarted
   become: yes
-  loop: "{{ PROJECT_SERVICES }}"
+  loop: "{{ APP_SERVICES }}"
   when: ansible_pkg_mgr != 'homebrew'
-- name: Create the {{ PROJECT_NAME }} launchd service {{ PROJECT_SYSTEMD }}.
+- name: Create the {{ APP_NAME }} launchd service {{ APP_SYSTEMD }}.
   template:
-    src: project_launchd_service.j2
+    src: project_launchd_service
     dest: "~/Library/LaunchAgents/org.project.plist"
-  loop: "{{ PROJECT_SERVICES }}"
+  loop: "{{ APP_SERVICES }}"
   when: ansible_pkg_mgr == 'homebrew'
-- name: Load the {{ PROJECT_NAME }} launchd service {{ PROJECT_SYSTEMD }}.
+- name: Load the {{ APP_NAME }} launchd service {{ APP_SYSTEMD }}.
   shell: launchctl load ~/Library/LaunchAgents/org.project.plist
   when: ansible_pkg_mgr == 'homebrew'
-- name: Start the {{ PROJECT_NAME }} launchd service {{ PROJECT_SYSTEMD }}.
+- name: Start the {{ APP_NAME }} launchd service {{ APP_SYSTEMD }}.
   shell: launchctl start org.project
   when: ansible_pkg_mgr == 'homebrew'
   changed_when: false
@@ -144,8 +154,8 @@
 
 - name: Create enUS database user
   postgresql_user:
-    name: "{{ PROJECT_DB_USER_ENUS }}"
-    password: "{{ PROJECT_DB_PASSWORD_ENUS }}"
+    name: "{{ APP_DB_USER_ENUS }}"
+    password: "{{ APP_DB_PASSWORD_ENUS }}"
     login_unix_socket: /tmp
     login_user: "{{ POSTGRES_BECOME_USER }}"
     db: postgres
@@ -153,8 +163,8 @@
   become_user: "{{ POSTGRES_BECOME_USER }}"
 - name: Create enUS database
   postgresql_db:
-    name: "{{ PROJECT_DB_NAME_ENUS }}"
-    owner: "{{ PROJECT_DB_USER_ENUS }}"
+    name: "{{ APP_DB_NAME_ENUS }}"
+    owner: "{{ APP_DB_USER_ENUS }}"
     login_unix_socket: /tmp
     login_user: "{{ POSTGRES_BECOME_USER }}"
     db: postgres
@@ -164,9 +174,9 @@
   postgresql_pg_hba:
     dest: "{{ POSTGRES_HBA_CONF }}"
     contype: host
-    users: "{{ PROJECT_DB_USER_ENUS }}"
+    users: "{{ APP_DB_USER_ENUS }}"
     source: "all"
-    databases: "{{ PROJECT_DB_NAME_ENUS }}"
+    databases: "{{ APP_DB_NAME_ENUS }}"
     method: md5
     create: true
   become: true
@@ -187,12 +197,12 @@
 ###############
 
 - name: Check for existing solr collection enUS
-  shell: "{{ SOLR_OPT }}/server/scripts/cloud-scripts/zkcli.sh -zkhost localhost:{{ ZOOKEEPER_PORT }} -cmd ls /collections/{{ PROJECT_SOLR_COLLECTION_ENUS }}"
+  shell: "{{ SOLR_OPT }}/server/scripts/cloud-scripts/zkcli.sh -zkhost localhost:{{ ZOOKEEPER_PORT }} -cmd ls /collections/{{ APP_SOLR_COLLECTION_ENUS }}"
   ignore_errors: yes
   register: SOLR_COLLECTION_EXISTS_ENUS
   changed_when: false
 - name: Create collection in solr enUS
-  shell: "{{ SOLR_OPT }}/bin/solr create -n computate -c {{ PROJECT_SOLR_COLLECTION_ENUS }}"
+  shell: "{{ SOLR_OPT }}/bin/solr create -n computate -c {{ APP_SOLR_COLLECTION_ENUS }}"
   when: SOLR_COLLECTION_EXISTS_ENUS.rc != 0
 
 ###########
@@ -205,20 +215,20 @@
     state: directory
     owner: "{{ USER_NAME }}"
   become: yes
-  when: PROJECT_SITE_BASE_URL_ENUS is regex("^https://")
-- name: Create the {{ PROJECT_NAME }} keystore properties {{ SSL_KEYSTORE_PATH }}/{{ SSL_PROPERTIES_FILENAME }}
+  when: APP_SITE_BASE_URL_ENUS is regex("^https://")
+- name: Create the {{ APP_NAME }} keystore properties {{ SSL_KEYSTORE_PATH }}/{{ SSL_PROPERTIES_FILENAME }}
   template:
-    src: opendatapolicing_keystore.properties.j2
-    dest: "{{ SSL_KEYSTORE_PATH }}/{{ PROJECT_SSL_PROPERTIES_FILENAME }}"
-  when: PROJECT_SITE_BASE_URL_ENUS is regex("^https://")
-- name: Create the {{ PROJECT_NAME }} keystore jks {{ SSL_JKS_PATH }}
+    src: project_keystore.properties
+    dest: "{{ SSL_KEYSTORE_PATH }}/{{ APP_SSL_PROPERTIES_FILENAME }}"
+  when: APP_SITE_BASE_URL_ENUS is regex("^https://")
+- name: Create the {{ APP_NAME }} keystore jks {{ SSL_JKS_PATH }}
   shell: echo {{ SSL_JKS_BASE64 }} | base64 -d > {{ SSL_JKS_PATH }}
-  when: PROJECT_SITE_BASE_URL_ENUS is regex("^https://")
+  when: APP_SITE_BASE_URL_ENUS is regex("^https://")
 - name: Build the source code in /usr/local/src/computate
   shell: "mvn clean install"
   args:
     chdir: "/usr/local/src/computate"
-- name: Build the source code in {{ PROJECT_SRC }}
+- name: Build the source code in {{ APP_SRC }}
   shell: "mvn clean install"
   args:
-    chdir: "{{ PROJECT_SRC }}"
+    chdir: "{{ APP_SRC }}"

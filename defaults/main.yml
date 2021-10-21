@@ -17,34 +17,38 @@ COMPUTATE_CERTBOT_DOMAIN_NAME: "..."
 # project system defaults #
 ###########################
 
+# The path to the system python binary. 
+SYSTEM_PYTHON: "{{ '/usr/bin/python' if lookup('file', '/usr/bin/python', errors='ignore') else '/usr/bin/python3' }}"
+# The path to the application python binary. 
+APP_PYTHON: "~/python/bin/python"
 # The name of this application. 
-PROJECT_NAME: "..."
+APP_NAME: "..."
 # The name of this application. 
 GITHUB_ORG: "..."
 # The default source code directory for the computate application which helps generate and translate most the code. 
 COMPUTATE_SRC: "/usr/local/src/computate"
 # The default source code directory for the project. 
-PROJECT_SRC: "/usr/local/src/{{ PROJECT_NAME }}"
+APP_SRC: "/usr/local/src/{{ APP_NAME }}"
 # The default language of the project code which is US English. 
-PROJECT_LANG: "enUS"
+APP_LANG: "enUS"
 # The default config file for the project. 
-PROJECT_CONFIG: "{{ PROJECT_SRC }}/config/{{ PROJECT_NAME }}.config"
+APP_CONFIG: "{{ APP_SRC }}/config/{{ APP_NAME }}.config"
 # The US English config file for the project. 
-PROJECT_CONFIG_enUS: "{{ PROJECT_SRC }}/config/{{ PROJECT_NAME }}-enUS.config"
+APP_CONFIG_enUS: "{{ APP_SRC }}/config/{{ APP_NAME }}-enUS.config"
 # The systemd service name for project that generates and translates most of the code. 
-PROJECT_SERVICE: "watch-{{ PROJECT_NAME }}"
+APP_SERVICE: "watch-{{ APP_NAME }}"
 # The systemd service file for project that generates and translates most of the code. 
-PROJECT_SYSTEMD: "/usr/lib/systemd/system/{{ PROJECT_SERVICE }}.service"
+APP_SYSTEMD: "/usr/lib/systemd/system/{{ APP_SERVICE }}.service"
 # The main git repository for the project. 
-PROJECT_REPO: "git@github.com:{{ GITHUB_ORG }}/{{ PROJECT_NAME }}.git"
+APP_REPO: "git@github.com:{{ GITHUB_ORG }}/{{ APP_NAME }}.git"
 # The name of this application. 
-PROJECT_STATIC_NAME: "{{ PROJECT_NAME }}-static"
+APP_STATIC_NAME: "{{ APP_NAME }}-static"
 # The name of this application. 
-PROJECT_ANSIBLE_NAME: "{{ PROJECT_NAME }}-ansible"
+APP_ANSIBLE_NAME: "{{ APP_NAME }}-ansible"
 # The static files git repository for the project. 
-PROJECT_STATIC_REPO: "git@github.com:{{ GITHUB_ORG }}/{{ PROJECT_STATIC_NAME }}.git"
+APP_STATIC_REPO: "git@github.com:{{ GITHUB_ORG }}/{{ APP_STATIC_NAME }}.git"
 # The Ansible automation git repository for the project. 
-PROJECT_ANSIBLE_REPO: "git@github.com:{{ GITHUB_ORG }}/{{ PROJECT_ANSIBLE_NAME }}.git"
+APP_ANSIBLE_REPO: "git@github.com:{{ GITHUB_ORG }}/{{ APP_ANSIBLE_NAME }}.git"
 
 ######################
 # Zookeeper defaults #
@@ -77,49 +81,49 @@ POSTGRES_BECOME_USER: "{{ USER_NAME }}"
 # The default path to the PostgreSQL hba file to manage user permissions. 
 POSTGRES_HBA_CONF: "/opt/postgres/data/pg_hba.conf"
 # The default PostgreSQL service name. 
-POSTGRES_SERVICE: "postgres-opt"
+POSTGRES_SERVICE: "postgres"
 
 ###########################
 # project global defaults #
 ###########################
 
 # The base URL where the static files will point to.  
-PROJECT_STATIC_BASE_URL: "https://example.neocities.org"
+APP_STATIC_BASE_URL: "https://example.neocities.org"
 # The number of background worker executors that may run. 
-PROJECT_NUMBER_EXECUTORS: 5
+APP_NUMBER_EXECUTORS: 5
 # The properties file where the SSL/TLS encryption is configured. 
-PROJECT_SSL_PROPERTIES_FILENAME: "{{ PROJECT_NAME }}-keystore.properties"
+APP_SSL_PROPERTIES_FILENAME: "{{ APP_NAME }}-keystore.properties"
 
 ######################################
 # project English in the US defaults #
 ######################################
 
 # The domain name of the site. 
-PROJECT_DOMAIN_NAME_ENUS: "example.com"
+APP_DOMAIN_NAME_ENUS: "example.com"
 # The host name of the site. 
-PROJECT_SITE_HOST_NAME_ENUS: "{{ PROJECT_NAME }}-dev.{{ PROJECT_DOMAIN_NAME_ENUS }}"
+APP_SITE_HOST_NAME_ENUS: "localhost"
 # The port of the site. 
-PROJECT_SITE_PORT_ENUS: "10781"
+APP_SITE_PORT_ENUS: "10781"
 # The base URL of the site. 
-PROJECT_SITE_BASE_URL_ENUS: "http://localhost:{{ PROJECT_SITE_PORT_ENUS }}"
+APP_SITE_BASE_URL_ENUS: "http://localhost:{{ APP_SITE_PORT_ENUS }}"
 # The Solr collection of the site. 
-PROJECT_SOLR_COLLECTION_ENUS: "{{ PROJECT_NAME }}"
+APP_SOLR_COLLECTION_ENUS: "{{ APP_NAME }}"
 # The timezone of the site. 
-PROJECT_SITE_ZONE_ENUS: "America/Denver"
+APP_SITE_ZONE_ENUS: "America/Denver"
 # The PostgreSQL database host name of the site. 
-PROJECT_DB_HOST_NAME_ENUS: "localhost"
+APP_DB_HOST_NAME_ENUS: "localhost"
 # The PostgreSQL database user name of the site. 
-PROJECT_DB_USER_ENUS: "{{ PROJECT_NAME }}"
+APP_DB_USER_ENUS: "{{ APP_NAME }}"
 # The PostgreSQL database password of the site. 
-PROJECT_DB_PASSWORD_ENUS: "{{ lookup('password', '/dev/null chars=ascii_letters,digits,hexdigits length=10') }}"
+APP_DB_PASSWORD_ENUS: "{{ lookup('password', '/dev/null chars=ascii_letters,digits,hexdigits length=10') }}"
 # The PostgreSQL database name of the site. 
-PROJECT_DB_NAME_ENUS: "{{ PROJECT_NAME }}"
+APP_DB_NAME_ENUS: "{{ APP_NAME }}"
 # The Java main class of the site. 
-PROJECT_JAVA_MAIN_CLASS_ENUS: "{{ PROJECT_JAVA_PACKAGE }}.vertx.AppVertx"
+APP_JAVA_MAIN_CLASS_ENUS: "{{ APP_JAVA_PACKAGE }}.vertx.AppVertx"
 # The backup directory of the site. 
-PROJECT_BACKUP_DIR_ENUS: "/usr/local/src/{{ PROJECT_NAME }}-static/data/enUS"
+APP_BACKUP_DIR_ENUS: "/usr/local/src/{{ APP_NAME }}-static/data/enUS"
 # The restore directory of the site. 
-PROJECT_RESTORE_DIR_ENUS: "~/backup/{{ PROJECT_NAME }}-dev/enUS"
+APP_RESTORE_DIR_ENUS: "~/backup/{{ APP_NAME }}-dev/enUS"
 
 #################
 # SMTP defaults #
@@ -157,11 +161,11 @@ AUTH_URL: https://sso.example.com/auth
 ####################
 
 # The keystore alias. 
-SSL_ALIAS: "{{ PROJECT_DOMAIN_NAME_ENUS }}"
+SSL_ALIAS: "{{ APP_DOMAIN_NAME_ENUS }}"
 # The keystore directory. 
 SSL_KEYSTORE_PATH: /opt/keystore
 # The keystore properties filename. 
-SSL_PROPERTIES_FILENAME: "{{ PROJECT_SSL_PROPERTIES_FILENAME }}"
+SSL_PROPERTIES_FILENAME: "{{ APP_SSL_PROPERTIES_FILENAME }}"
 # The keystore filename. 
 SSL_JKS_FILENAME: "{{ SSL_ALIAS }}.jks"
 # The keystore path. 
@@ -178,7 +182,7 @@ SSL_KEY_PATH: "{{ SSL_KEYSTORE_PATH }}/{{ SSL_KEY_FILENAME }}"
 SSL_P12_PASSWORD: "..."
 # The keystore file password. 
 SSL_JKS_PASSWORD: "{{ SSL_P12_PASSWORD }}"
-# The keystore file base64 encoded (base64 -w 0 /opt/keystore/heytate.com.jks). 
-SSL_JKS_BASE64: "..."
-# The jceks file base64 encoded (base64 -w 0 /opt/keystore/heytate.com.jceks). 
-SSL_JCEKS_BASE64: "..."
+# The keystore file base64 encoded (base64 -w 0 /opt/keystore/{{ APP_DOMAIN_NAME_ENUS }}.jks). 
+SSL_JKS_BASE64: "/opt/keystore/{{ APP_DOMAIN_NAME_ENUS }}.jks"
+# The jceks file base64 encoded (base64 -w 0 /opt/keystore/{{ APP_DOMAIN_NAME_ENUS }}.jceks). 
+SSL_JCEKS_BASE64: "/opt/keystore/{{ APP_DOMAIN_NAME_ENUS }}.jceks"
