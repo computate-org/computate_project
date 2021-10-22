@@ -63,6 +63,8 @@ ENABLE_DELETED: "{{ APP_CONFIG.enableDeleted | default(true) | lower }}"
 ENABLE_ARCHIVED: "{{ APP_CONFIG.enableArchived | default(true) | lower }}"
 # Enable data import in the site. 
 ENABLE_IMPORT_DATA: true
+# Enable code generation service
+ENABLE_CODE_GENERATION_SERVICE: false
 
 ######################
 # Zookeeper defaults #

@@ -38,22 +38,22 @@
   stat:
     path: "{{ APP_SRC }}/.git"
   register: APP_GIT_DIR
-- name: Check for the {{ APP_NAME }} pom.xml file
+- name: Check for the {{ APP_NAME }} README.md file
   stat:
-    path: "{{ APP_SRC }}/pom.xml"
-  register: APP_POM
+    path: "{{ APP_SRC }}/README.md"
+  register: APP_README
 - name: Create the {{ APP_NAME }} source directory {{ APP_SRC }}
   file:
     name: "{{ APP_SRC }}"
     state: directory
     owner: "{{ USER_NAME }}"
   become: yes
-  when: not APP_GIT_DIR.stat.exists and not APP_POM.stat.exists
+  when: not APP_GIT_DIR.stat.exists and not APP_README.stat.exists
 - name: Clone the {{ APP_REPO }} source code into {{ APP_SRC }}
   git:
     repo: "{{ APP_REPO }}"
     dest: "{{ APP_SRC }}"
-  when: not APP_GIT_DIR.stat.exists and not APP_POM.stat.exists
+  when: not APP_GIT_DIR.stat.exists and not APP_README.stat.exists
 
 ##############
 # Static dir #
@@ -107,7 +107,7 @@
     dest: "/usr/lib/systemd/system/watch-{{ item.APP_NAME }}.service"
   become: yes
   loop: "{{ APP_SERVICES }}"
-  when: ansible_pkg_mgr != 'homebrew'
+  when: ENABLE_CODE_GENERATION_SERVICE and ansible_pkg_mgr != 'homebrew'
 - name: Create the {{ item.APP_NAME }} config dirs. 
   file:
     name: "{{ item.APP_SRC }}/config"
@@ -124,7 +124,7 @@
     daemon_reload: yes
   become: yes
   loop: "{{ APP_SERVICES }}"
-  when: ansible_pkg_mgr != 'homebrew'
+  when: ENABLE_CODE_GENERATION_SERVICE and ansible_pkg_mgr != 'homebrew'
 - name: Start and enable the {{ item.APP_NAME }} services. 
   service:
     name: "watch-{{ item.APP_NAME }}"
@@ -132,19 +132,19 @@
     state: restarted
   become: yes
   loop: "{{ APP_SERVICES }}"
-  when: ansible_pkg_mgr != 'homebrew'
+  when: ENABLE_CODE_GENERATION_SERVICE and ansible_pkg_mgr != 'homebrew'
 - name: Create the {{ APP_NAME }} launchd service {{ APP_SYSTEMD }}.
   template:
     src: project_launchd_service
     dest: "~/Library/LaunchAgents/org.project.plist"
   loop: "{{ APP_SERVICES }}"
-  when: ansible_pkg_mgr == 'homebrew'
+  when: ENABLE_CODE_GENERATION_SERVICE and ansible_pkg_mgr == 'homebrew'
 - name: Load the {{ APP_NAME }} launchd service {{ APP_SYSTEMD }}.
   shell: launchctl load ~/Library/LaunchAgents/org.project.plist
-  when: ansible_pkg_mgr == 'homebrew'
+  when: ENABLE_CODE_GENERATION_SERVICE and ansible_pkg_mgr == 'homebrew'
 - name: Start the {{ APP_NAME }} launchd service {{ APP_SYSTEMD }}.
   shell: launchctl start org.project
-  when: ansible_pkg_mgr == 'homebrew'
+  when: ENABLE_CODE_GENERATION_SERVICE and ansible_pkg_mgr == 'homebrew'
   changed_when: false
 
 
