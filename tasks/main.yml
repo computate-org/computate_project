@@ -116,8 +116,8 @@
   loop: "{{ APP_SERVICES }}"
 - name: Create the {{ item.APP_NAME }} enUS configs. 
   template:
-    src: project_config_enUS.yml
-    dest: "{{ item.APP_SRC }}/config/{{ item.APP_NAME }}.config"
+    src: "{{ item.APP_SRC }}/config/template.yml"
+    dest: "{{ item.APP_SRC }}/config/{{ item.APP_NAME }}.yml"
   loop: "{{ APP_SERVICES }}"
 - name: Reload the services. 
   systemd:
@@ -154,8 +154,8 @@
 
 - name: Create enUS database user
   postgresql_user:
-    name: "{{ APP_DB_USER_ENUS }}"
-    password: "{{ APP_DB_PASSWORD_ENUS }}"
+    name: "{{ JDBC_USERNAME }}"
+    password: "{{ JDBC_PASSWORD }}"
     login_unix_socket: /tmp
     login_user: "{{ POSTGRES_BECOME_USER }}"
     db: postgres
@@ -163,8 +163,8 @@
   become_user: "{{ POSTGRES_BECOME_USER }}"
 - name: Create enUS database
   postgresql_db:
-    name: "{{ APP_DB_NAME_ENUS }}"
-    owner: "{{ APP_DB_USER_ENUS }}"
+    name: "{{ JDBC_DATABASE }}"
+    owner: "{{ JDBC_USERNAME }}"
     login_unix_socket: /tmp
     login_user: "{{ POSTGRES_BECOME_USER }}"
     db: postgres
@@ -174,9 +174,9 @@
   postgresql_pg_hba:
     dest: "{{ POSTGRES_HBA_CONF }}"
     contype: host
-    users: "{{ APP_DB_USER_ENUS }}"
+    users: "{{ JDBC_USERNAME }}"
     source: "all"
-    databases: "{{ APP_DB_NAME_ENUS }}"
+    databases: "{{ JDBC_DATABASE }}"
     method: md5
     create: true
   become: true
@@ -197,13 +197,13 @@
 ###############
 
 - name: Check for existing solr collection enUS
-  shell: "{{ SOLR_OPT }}/server/scripts/cloud-scripts/zkcli.sh -zkhost localhost:{{ ZOOKEEPER_PORT }} -cmd ls /collections/{{ APP_SOLR_COLLECTION_ENUS }}"
+  shell: "{{ SOLR_OPT }}/server/scripts/cloud-scripts/zkcli.sh -zkhost localhost:{{ ZOOKEEPER_PORT }} -cmd ls /collections/{{ SOLR_COLLECTION }}"
   ignore_errors: yes
-  register: SOLR_COLLECTION_EXISTS_ENUS
+  register: SOLR_COLLECTION_EXISTS
   changed_when: false
 - name: Create collection in solr enUS
-  shell: "{{ SOLR_OPT }}/bin/solr create -n computate -c {{ APP_SOLR_COLLECTION_ENUS }}"
-  when: SOLR_COLLECTION_EXISTS_ENUS.rc != 0
+  shell: "{{ SOLR_OPT }}/bin/solr create -n computate -c {{ SOLR_COLLECTION }}"
+  when: SOLR_COLLECTION_EXISTS.rc != 0
 
 ###########
 # SSL/TLS #
@@ -215,15 +215,15 @@
     state: directory
     owner: "{{ USER_NAME }}"
   become: yes
-  when: APP_SITE_BASE_URL_ENUS is regex("^https://")
+  when: SITE_BASE_URL is regex("^https://")
 - name: Create the {{ APP_NAME }} keystore properties {{ SSL_KEYSTORE_PATH }}/{{ SSL_PROPERTIES_FILENAME }}
   template:
     src: project_keystore.properties
-    dest: "{{ SSL_KEYSTORE_PATH }}/{{ APP_SSL_PROPERTIES_FILENAME }}"
-  when: APP_SITE_BASE_URL_ENUS is regex("^https://")
+    dest: "{{ SSL_KEYSTORE_PATH }}/{{ SSL_PROPERTIES_FILENAME }}"
+  when: SITE_BASE_URL is regex("^https://")
 - name: Create the {{ APP_NAME }} keystore jks {{ SSL_JKS_PATH }}
   shell: echo {{ SSL_JKS_BASE64 }} | base64 -d > {{ SSL_JKS_PATH }}
-  when: APP_SITE_BASE_URL_ENUS is regex("^https://")
+  when: SITE_BASE_URL is regex("^https://")
 - name: Build the source code in /usr/local/src/computate
   shell: "mvn clean install"
   args:

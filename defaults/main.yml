@@ -23,6 +23,10 @@ SYSTEM_PYTHON: "{{ '/usr/bin/python' if lookup('file', '/usr/bin/python', errors
 APP_PYTHON: "~/python/bin/python"
 # The name of this application. 
 APP_NAME: "..."
+# The main locale of this application. 
+SITE_LOCALE: en-US
+# The name of the language of the code. 
+LANGUAGE_NAME: "{{ SITE_LOCALE | replace('-', '') }}"
 # The name of this application. 
 GITHUB_ORG: "..."
 # The default source code directory for the computate application which helps generate and translate most the code. 
@@ -49,6 +53,16 @@ APP_ANSIBLE_NAME: "{{ APP_NAME }}-ansible"
 APP_STATIC_REPO: "git@github.com:{{ GITHUB_ORG }}/{{ APP_STATIC_NAME }}.git"
 # The Ansible automation git repository for the project. 
 APP_ANSIBLE_REPO: "git@github.com:{{ GITHUB_ORG }}/{{ APP_ANSIBLE_NAME }}.git"
+# Set the userKey of the user creating an object in the database. 
+ENABLE_USER_KEY: "{{ APP_CONFIG.enableUserKey | default(true) | lower }}"
+# Set the sessionId of the user session creating an object in the database. 
+ENABLE_SESSION_ID: "{{ APP_CONFIG.enableSessionId | default(true) | lower }}"
+# Enable an object in the database to be deleted. 
+ENABLE_DELETED: "{{ APP_CONFIG.enableDeleted | default(true) | lower }}"
+# Enable an object in the database to be archived. 
+ENABLE_ARCHIVED: "{{ APP_CONFIG.enableArchived | default(true) | lower }}"
+# Enable data import in the site. 
+ENABLE_IMPORT_DATA: true
 
 ######################
 # Zookeeper defaults #
@@ -69,6 +83,10 @@ SOLR_OPT: /opt/solr
 SOLR_HOST_NAME: localhost
 # The default port that Solr runs. 
 SOLR_PORT: 8983
+# The URL to the Solr collection. 
+SOLR_URL: "http://{{ SOLR_HOST_NAME }}:{{ SOLR_PORT }}/solr/{{ SOLR_COLLECTION }}"
+# The URL to the Solr collection for the watched Java code API. 
+SOLR_URL_COMPUTATE: "http://{{ SOLR_HOST_NAME }}:{{ SOLR_PORT }}/solr/computate"
 
 #######################
 # PostgreSQL defaults #
@@ -87,81 +105,115 @@ POSTGRES_SERVICE: "postgres"
 # project global defaults #
 ###########################
 
-# The base URL where the static files will point to.  
-APP_STATIC_BASE_URL: "https://example.neocities.org"
 # The number of background worker executors that may run. 
-APP_NUMBER_EXECUTORS: 5
-# The properties file where the SSL/TLS encryption is configured. 
-APP_SSL_PROPERTIES_FILENAME: "{{ APP_NAME }}-keystore.properties"
+NUMBER_EXECUTORS: 5
 
 ######################################
 # project English in the US defaults #
 ######################################
 
 # The domain name of the site. 
-APP_DOMAIN_NAME_ENUS: "example.com"
+DOMAIN_NAME: "example.com"
+# The domain package name of the site. 
+DOMAIN_PACKAGE_NAME: "{{ APP_JAVA_PACKAGE }}"
+# The /src/main/java folder for the main Java source code. 
+SUFFIX_SRC_MAIN_JAVA: /src/main/java
+# The /src/gen/java folder for the generated Java source code. 
+SUFFIX_SRC_GEN_JAVA: /src/gen/java
+# The relative paths in the project to watch for changes. 
+RELATIVE_PATHS_TO_WATCH: src/main/java/{{ APP_JAVA_PACKAGE | replace('.', '/') }}
 # The host name of the site. 
-APP_SITE_HOST_NAME_ENUS: "localhost"
+SITE_HOST_NAME: "localhost"
 # The port of the site. 
-APP_SITE_PORT_ENUS: "10781"
+SITE_PORT: "8080"
 # The base URL of the site. 
-APP_SITE_BASE_URL_ENUS: "http://localhost:{{ APP_SITE_PORT_ENUS }}"
+SITE_BASE_URL: "http://{{ SITE_HOST_NAME }}:{{ SITE_PORT }}"
 # The Solr collection of the site. 
-APP_SOLR_COLLECTION_ENUS: "{{ APP_NAME }}"
+SOLR_COLLECTION: "{{ APP_NAME }}"
 # The timezone of the site. 
-APP_SITE_ZONE_ENUS: "America/Denver"
-# The PostgreSQL database host name of the site. 
-APP_DB_HOST_NAME_ENUS: "localhost"
+SITE_ZONE: "America/Denver"
+# The PostgreSQL database host name. 
+JDBC_HOST: "localhost"
+# The PostgreSQL database port. 
+JDBC_PORT: "5432"
 # The PostgreSQL database user name of the site. 
-APP_DB_USER_ENUS: "{{ APP_NAME }}"
+JDBC_USERNAME: "{{ APP_NAME }}"
 # The PostgreSQL database password of the site. 
-APP_DB_PASSWORD_ENUS: "{{ lookup('password', '/dev/null chars=ascii_letters,digits,hexdigits length=10') }}"
+JDBC_PASSWORD: "{{ lookup('password', '/dev/null chars=ascii_letters,digits,hexdigits length=10') }}"
 # The PostgreSQL database name of the site. 
-APP_DB_NAME_ENUS: "{{ APP_NAME }}"
+JDBC_DATABASE: "{{ APP_NAME }}"
 # The Java main class of the site. 
-APP_JAVA_MAIN_CLASS_ENUS: "{{ APP_JAVA_PACKAGE }}.vertx.AppVertx"
+JAVA_MAIN_CLASS: "{{ APP_JAVA_PACKAGE }}.vertx.AppVertx"
 # The backup directory of the site. 
-APP_BACKUP_DIR_ENUS: "/usr/local/src/{{ APP_NAME }}-static/data/enUS"
+BACKUP_DIR: "/usr/local/src/{{ APP_NAME }}-static/data/enUS"
 # The restore directory of the site. 
-APP_RESTORE_DIR_ENUS: "~/backup/{{ APP_NAME }}-dev/enUS"
+RESTORE_DIR: "~/backup/{{ APP_NAME }}-dev/enUS"
+# The base URL where the static files will point to.  
+STATIC_BASE_URL: "{{ SITE_BASE_URL }}/static"
+# The path to the static files. 
+STATIC_PATH: "{{ APP_SRC }}-static"
+# The path to the template files. 
+TEMPLATE_PATH: "{{ STATIC_PATH }}/template"
+
+# The Auth roles required to be an admin in the site. 
+AUTH_ROLES_ADMIN: [ SiteAdmin ]
+# The Auth roles required to add and modify SequenceRun records. 
+AUTH_ROLES_REQUIRED_SequenceRun: [ SiteAdmin ]
+# The Auth roles required to add and modify Taxonomy records. 
+AUTH_ROLES_REQUIRED_Taxonomy: [ SiteAdmin ]
+# The Auth roles required to add and modify BioSample records. 
+AUTH_ROLES_REQUIRED_BioSample: [ SiteAdmin ]
 
 #################
 # SMTP defaults #
 #################
 
 # The email SMTP host name. 
-EMAIL_HOST_NAME: smtp.example.com
+EMAIL_HOST: ""
 # The email SMTP port. 
 EMAIL_PORT: 465
 # The email SMTP from email address. 
-EMAIL_FROM: "..."
+EMAIL_FROM: ""
+# The admin email address. 
+EMAIL_ADMIN: ""
 # Whether email SMTP SSL/TLS encryption is enabled. 
 EMAIL_SSL: true
 # Whether email SMTP username password authentication is enabled. 
 EMAIL_AUTH: true
 # The email SMTP username. 
-EMAIL_USER: "..."
-EMAIL_PASSWORD: "..."
+EMAIL_USERNAME: ""
+# The email SMTP password. 
+EMAIL_PASSWORD: ""
 
 #######################################
 # OpenID Connect auth server defaults #
 #######################################
 
+# The Auth host name. 
+AUTH_HOST_NAME: sso.computate.org
+# The Auth port. 
+AUTH_PORT: 443
+# Whether the Auth server uses SSL. 
+AUTH_SSL: true
+# Whether the Auth server requires SSL. 
+AUTH_SSL_REQUIRED: all
 # The Auth realm. 
-AUTH_REALM: EXAMPLE.COM
+AUTH_REALM: TEAM19
 # The Auth client or resource. 
-AUTH_RESOURCE: example.com
+AUTH_RESOURCE: team19
 # The Auth secret. 
 AUTH_SECRET: "..."
 # The Auth URL. 
-AUTH_URL: https://sso.example.com/auth
+AUTH_URL: "{{ 'https' if AUTH_PORT == 443 else 'http' }}://{{ AUTH_HOST_NAME }}{{ '' if AUTH_PORT == 443 else (':' + AUTH_PORT)}}/auth"
+# The Auth URL to retrieve tokens. 
+AUTH_TOKEN_URI: "/auth/realms/{{ AUTH_REALM }}/protocol/openid-connect/token"
 
 ####################
 # SSL/TLS defaults #
 ####################
 
 # The keystore alias. 
-SSL_ALIAS: "{{ APP_DOMAIN_NAME_ENUS }}"
+SSL_ALIAS: "{{ DOMAIN_NAME }}"
 # The keystore directory. 
 SSL_KEYSTORE_PATH: /opt/keystore
 # The keystore properties filename. 
@@ -182,7 +234,7 @@ SSL_KEY_PATH: "{{ SSL_KEYSTORE_PATH }}/{{ SSL_KEY_FILENAME }}"
 SSL_P12_PASSWORD: "..."
 # The keystore file password. 
 SSL_JKS_PASSWORD: "{{ SSL_P12_PASSWORD }}"
-# The keystore file base64 encoded (base64 -w 0 /opt/keystore/{{ APP_DOMAIN_NAME_ENUS }}.jks). 
-SSL_JKS_BASE64: "/opt/keystore/{{ APP_DOMAIN_NAME_ENUS }}.jks"
-# The jceks file base64 encoded (base64 -w 0 /opt/keystore/{{ APP_DOMAIN_NAME_ENUS }}.jceks). 
-SSL_JCEKS_BASE64: "/opt/keystore/{{ APP_DOMAIN_NAME_ENUS }}.jceks"
+# The keystore file base64 encoded (base64 -w 0 /opt/keystore/{{ DOMAIN_NAME }}.jks). 
+SSL_JKS_BASE64: "/opt/keystore/{{ DOMAIN_NAME }}.jks"
+# The jceks file base64 encoded (base64 -w 0 /opt/keystore/{{ DOMAIN_NAME }}.jceks). 
+SSL_JCEKS_BASE64: "/opt/keystore/{{ DOMAIN_NAME }}.jceks"
