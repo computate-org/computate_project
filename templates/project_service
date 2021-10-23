@@ -6,11 +6,11 @@ After=network.target
 Type=simple
 User={{ USER_NAME }}
 Group={{ USER_NAME }}
-WorkingDirectory={{ item.APP_SRC }}
-Environment=appName={{ item.APP_NAME }}
-Environment=appPath={{ item.APP_SRC }}
+WorkingDirectory={{ item.PROJECT_SRC }}
+Environment=appName={{ item.PROJECT_NAME }}
+Environment=appPath={{ item.PROJECT_SRC }}
 Environment=appComputatePath={{ COMPUTATE_SRC }}
-Environment=lang={{ APP_LANG }}
+Environment=lang={{ PROJECT_LANG }}
 ExecStart={{ COMPUTATE_SRC }}/bin/enUS/watch.sh
 LimitNOFILE=65000
 LimitNPROC=65000
