@@ -6,7 +6,7 @@
                 <string>org.project</string>
 
                 <key>WorkingDirectory</key>
-                <string>{{ item.PROJECT_SRC }}</string>
+                <string>{{ item.APP_SRC }}</string>
 
                 <key>ProgramArguments</key>
                 <array>
@@ -16,13 +16,13 @@
                 <key>EnvironmentVariables</key>
                 <dict>
                         <key>appName</key>
-                        <string>{{ item.PROJECT_NAME }}</string>
+                        <string>{{ item.APP_NAME }}</string>
                         <key>appPath</key>
-                        <string>{{ item.PROJECT_SRC }}</string>
+                        <string>{{ item.APP_SRC }}</string>
                         <key>appComputatePath</key>
                         <string>{{ COMPUTATE_SRC }}</string>
                         <key>lang</key>
-                        <string>{{ PROJECT_LANG }}</string>
+                        <string>{{ APP_LANG }}</string>
                 </dict>
 
                 <key>KeepAlive</key>
