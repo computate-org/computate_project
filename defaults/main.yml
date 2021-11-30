@@ -7,22 +7,19 @@
 # Add to an ansible-vault the username of your user on your computer (echo $HOSTNAME). 
 USER_NAME: "{{ lookup('env', 'USER') }}"
 
-####################
-# Certbot defaults #
-####################
-
-COMPUTATE_CERTBOT_DOMAIN_NAME: "..."
-
 ###########################
 # project system defaults #
 ###########################
 
+# The path to the Ansible defaults for the application. 
+SITE_DEFAULTS: "/usr/local/src/{{ SITE_NAME }}/config/defaults.yml"
+
 # The path to the system python binary. 
 SYSTEM_PYTHON: "{{ '/usr/bin/python' if lookup('file', '/usr/bin/python', errors='ignore') else '/usr/bin/python3' }}"
 # The path to the application python binary. 
-APP_PYTHON: "~/python/bin/python"
+SITE_PYTHON: "~/python/bin/python"
 # The name of this application. 
-APP_NAME: "..."
+SITE_NAME: "..."
 # The main locale of this application. 
 SITE_LOCALE: en-US
 # The name of the language of the code. 
@@ -32,35 +29,35 @@ GITHUB_ORG: "..."
 # The default source code directory for the computate application which helps generate and translate most the code. 
 COMPUTATE_SRC: "/usr/local/src/computate"
 # The default source code directory for the project. 
-APP_SRC: "/usr/local/src/{{ APP_NAME }}"
+SITE_SRC: "/usr/local/src/{{ SITE_NAME }}"
 # The default language of the project code which is US English. 
-APP_LANG: "enUS"
+SITE_LANG: "enUS"
 # The default config file for the project. 
-APP_CONFIG: "{{ APP_SRC }}/config/{{ APP_NAME }}.config"
+SITE_CONFIG: "{{ SITE_SRC }}/config/{{ SITE_NAME }}.config"
 # The US English config file for the project. 
-APP_CONFIG_enUS: "{{ APP_SRC }}/config/{{ APP_NAME }}-enUS.config"
+SITE_CONFIG_enUS: "{{ SITE_SRC }}/config/{{ SITE_NAME }}-enUS.config"
 # The systemd service name for project that generates and translates most of the code. 
-APP_SERVICE: "watch-{{ APP_NAME }}"
+SITE_SERVICE: "watch-{{ SITE_NAME }}"
 # The systemd service file for project that generates and translates most of the code. 
-APP_SYSTEMD: "/usr/lib/systemd/system/{{ APP_SERVICE }}.service"
+SITE_SYSTEMD: "/usr/lib/systemd/system/{{ SITE_SERVICE }}.service"
 # The main git repository for the project. 
-APP_REPO: "git@github.com:{{ GITHUB_ORG }}/{{ APP_NAME }}.git"
+SITE_REPO: "git@github.com:{{ GITHUB_ORG }}/{{ SITE_NAME }}.git"
 # The name of this application. 
-APP_STATIC_NAME: "{{ APP_NAME }}-static"
+SITE_STATIC_NAME: "{{ SITE_NAME }}-static"
 # The name of this application. 
-APP_ANSIBLE_NAME: "{{ APP_NAME }}-ansible"
+SITE_ANSIBLE_NAME: "{{ SITE_NAME }}-ansible"
 # The static files git repository for the project. 
-APP_STATIC_REPO: "git@github.com:{{ GITHUB_ORG }}/{{ APP_STATIC_NAME }}.git"
+SITE_STATIC_REPO: "git@github.com:{{ GITHUB_ORG }}/{{ SITE_STATIC_NAME }}.git"
 # The Ansible automation git repository for the project. 
-APP_ANSIBLE_REPO: "git@github.com:{{ GITHUB_ORG }}/{{ APP_ANSIBLE_NAME }}.git"
+SITE_ANSIBLE_REPO: "git@github.com:{{ GITHUB_ORG }}/{{ SITE_ANSIBLE_NAME }}.git"
 # Set the userKey of the user creating an object in the database. 
-ENABLE_USER_KEY: "{{ APP_CONFIG.enableUserKey | default(true) | lower }}"
+ENABLE_USER_KEY: "{{ SITE_CONFIG.enableUserKey | default(true) | lower }}"
 # Set the sessionId of the user session creating an object in the database. 
-ENABLE_SESSION_ID: "{{ APP_CONFIG.enableSessionId | default(true) | lower }}"
+ENABLE_SESSION_ID: "{{ SITE_CONFIG.enableSessionId | default(true) | lower }}"
 # Enable an object in the database to be deleted. 
-ENABLE_DELETED: "{{ APP_CONFIG.enableDeleted | default(true) | lower }}"
+ENABLE_DELETED: "{{ SITE_CONFIG.enableDeleted | default(true) | lower }}"
 # Enable an object in the database to be archived. 
-ENABLE_ARCHIVED: "{{ APP_CONFIG.enableArchived | default(true) | lower }}"
+ENABLE_ARCHIVED: "{{ SITE_CONFIG.enableArchived | default(true) | lower }}"
 # Enable data import in the site. 
 ENABLE_IMPORT_DATA: true
 # Enable code generation service
@@ -117,13 +114,13 @@ NUMBER_EXECUTORS: 5
 # The domain name of the site. 
 DOMAIN_NAME: "example.com"
 # The domain package name of the site. 
-DOMAIN_PACKAGE_NAME: "{{ APP_JAVA_PACKAGE }}"
+DOMAIN_PACKAGE_NAME: "{{ SITE_JAVA_PACKAGE }}"
 # The /src/main/java folder for the main Java source code. 
 SUFFIX_SRC_MAIN_JAVA: /src/main/java
 # The /src/gen/java folder for the generated Java source code. 
 SUFFIX_SRC_GEN_JAVA: /src/gen/java
 # The relative paths in the project to watch for changes. 
-RELATIVE_PATHS_TO_WATCH: src/main/java/{{ APP_JAVA_PACKAGE | replace('.', '/') }}
+RELATIVE_PATHS_TO_WATCH: src/main/java/{{ SITE_JAVA_PACKAGE | replace('.', '/') }}
 # The host name of the site. 
 SITE_HOST_NAME: "localhost"
 # The port of the site. 
@@ -131,7 +128,7 @@ SITE_PORT: "8080"
 # The base URL of the site. 
 SITE_BASE_URL: "http://{{ SITE_HOST_NAME }}:{{ SITE_PORT }}"
 # The Solr collection of the site. 
-SOLR_COLLECTION: "{{ APP_NAME }}"
+SOLR_COLLECTION: "{{ SITE_NAME }}"
 # The timezone of the site. 
 SITE_ZONE: "America/Denver"
 # The PostgreSQL database host name. 
@@ -139,23 +136,23 @@ JDBC_HOST: "localhost"
 # The PostgreSQL database port. 
 JDBC_PORT: "5432"
 # The PostgreSQL database user name of the site. 
-JDBC_USERNAME: "{{ APP_NAME }}"
+JDBC_USERNAME: "{{ SITE_NAME }}"
 # The PostgreSQL database password of the site. 
 JDBC_PASSWORD: "{{ lookup('password', '/dev/null chars=ascii_letters,digits,hexdigits length=10') }}"
 # The PostgreSQL database name of the site. 
-JDBC_DATABASE: "{{ APP_NAME }}"
+JDBC_DATABASE: "{{ SITE_NAME }}"
 # The Java main class of the site. 
-JAVA_MAIN_CLASS: "{{ APP_JAVA_PACKAGE }}.vertx.AppVertx"
+JAVA_MAIN_CLASS: "{{ SITE_JAVA_PACKAGE }}.vertx.AppVertx"
 # The backup directory of the site. 
-BACKUP_DIR: "/usr/local/src/{{ APP_NAME }}-static/data/enUS"
+BACKUP_DIR: "/usr/local/src/{{ SITE_NAME }}-static/data/enUS"
 # The restore directory of the site. 
-RESTORE_DIR: "~/backup/{{ APP_NAME }}-dev/enUS"
+RESTORE_DIR: "~/backup/{{ SITE_NAME }}-dev/enUS"
 # The base URL where the static files will point to.  
 STATIC_BASE_URL: "{{ SITE_BASE_URL }}/static"
 # The path to the static files. 
-STATIC_PATH: "{{ APP_SRC }}-static"
+STATIC_PATH: "{{ SITE_SRC }}-static"
 # The path to the template files. 
-TEMPLATE_PATH: "{{ STATIC_PATH }}/template"
+TEMPLATE_PATH: "{{ SITE_SRC }}/src/main/resources/templates"
 
 # The Auth roles required to be an admin in the site. 
 AUTH_ROLES_ADMIN: [ SiteAdmin ]
@@ -219,7 +216,7 @@ SSL_ALIAS: "{{ DOMAIN_NAME }}"
 # The keystore directory. 
 SSL_KEYSTORE_PATH: /opt/keystore
 # The keystore properties filename. 
-SSL_PROPERTIES_FILENAME: "{{ APP_SSL_PROPERTIES_FILENAME }}"
+SSL_PROPERTIES_FILENAME: "{{ SITE_SSL_PROPERTIES_FILENAME }}"
 # The keystore filename. 
 SSL_JKS_FILENAME: "{{ SSL_ALIAS }}.jks"
 # The keystore path. 

@@ -1,4 +1,8 @@
 ---
+- name: "Include default variables in {{ SITE_DEFAULTS }}"
+  include_vars:
+    file: "{{ SITE_DEFAULTS }}"
+
 - name: Check if git binary exists
   stat:
     path: /usr/bin/git
@@ -23,126 +27,120 @@
   vars:
     ansible_python_interpreter: "{{ SYSTEM_PYTHON }}"
   when: not JAVAC_EXISTS.stat.exists
-- name: "install python pip dependencies"
-  pip:
-    name: psycopg2-binary
-    state: present
-  vars:
-    ansible_python_interpreter: "{{ APP_PYTHON }}"
 
 ###############
 # Project dir #
 ###############
 
-- name: Check for the {{ APP_NAME }} .git directory
+- name: Check for the {{ SITE_NAME }} .git directory
   stat:
-    path: "{{ APP_SRC }}/.git"
-  register: APP_GIT_DIR
-- name: Check for the {{ APP_NAME }} README.md file
+    path: "{{ SITE_SRC }}/.git"
+  register: SITE_GIT_DIR
+- name: Check for the {{ SITE_NAME }} README.md file
   stat:
-    path: "{{ APP_SRC }}/README.md"
-  register: APP_README
-- name: Create the {{ APP_NAME }} source directory {{ APP_SRC }}
+    path: "{{ SITE_SRC }}/README.md"
+  register: SITE_README
+- name: Create the {{ SITE_NAME }} source directory {{ SITE_SRC }}
   file:
-    name: "{{ APP_SRC }}"
+    name: "{{ SITE_SRC }}"
     state: directory
     owner: "{{ USER_NAME }}"
   become: yes
-  when: not APP_GIT_DIR.stat.exists and not APP_README.stat.exists
-- name: Clone the {{ APP_REPO }} source code into {{ APP_SRC }}
+  when: not SITE_GIT_DIR.stat.exists and not SITE_README.stat.exists
+- name: Clone the {{ SITE_REPO }} source code into {{ SITE_SRC }}
   git:
-    repo: "{{ APP_REPO }}"
-    dest: "{{ APP_SRC }}"
-  when: not APP_GIT_DIR.stat.exists and not APP_README.stat.exists
+    repo: "{{ SITE_REPO }}"
+    dest: "{{ SITE_SRC }}"
+  when: not SITE_GIT_DIR.stat.exists and not SITE_README.stat.exists
 
 ##############
 # Static dir #
 ##############
 
-- name: Check for the {{ APP_STATIC_NAME }} .git directory
+- name: Check for the {{ SITE_STATIC_NAME }} .git directory
   stat:
-    path: "{{ APP_SRC }}-static/.git"
-  register: APP_STATIC_GIT_DIR
-- name: Create the {{ APP_STATIC_NAME }} source directory {{ APP_SRC }}-static
+    path: "{{ SITE_SRC }}-static/.git"
+  register: SITE_STATIC_GIT_DIR
+- name: Create the {{ SITE_STATIC_NAME }} source directory {{ SITE_SRC }}-static
   file:
-    name: "{{ APP_SRC }}-static"
+    name: "{{ SITE_SRC }}-static"
     state: directory
     owner: "{{ USER_NAME }}"
   become: yes
-  when: not APP_STATIC_GIT_DIR.stat.exists
-- name: Clone the {{ APP_STATIC_REPO }} source code into {{ APP_SRC }}-static
+  when: not SITE_STATIC_GIT_DIR.stat.exists
+- name: Clone the {{ SITE_STATIC_REPO }} source code into {{ SITE_SRC }}-static
   git:
-    repo: "{{ APP_STATIC_REPO }}"
-    dest: "{{ APP_SRC }}-static"
-  when: not APP_STATIC_GIT_DIR.stat.exists
+    repo: "{{ SITE_STATIC_REPO }}"
+    dest: "{{ SITE_SRC }}-static"
+  when: not SITE_STATIC_GIT_DIR.stat.exists
 
 ###############
 # Ansible dir #
 ###############
 
-- name: Check for the {{ APP_ANSIBLE_NAME }} .git directory
+- name: Check for the {{ SITE_ANSIBLE_NAME }} .git directory
   stat:
-    path: "{{ APP_SRC }}-ansible/.git"
-  register: APP_ANSIBLE_GIT_DIR
-- name: Create the {{ APP_ANSIBLE_NAME }} source directory {{ APP_SRC }}-ansible
+    path: "{{ SITE_SRC }}-ansible/.git"
+  register: SITE_ANSIBLE_GIT_DIR
+- name: Create the {{ SITE_ANSIBLE_NAME }} source directory {{ SITE_SRC }}-ansible
   file:
-    name: "{{ APP_SRC }}-ansible"
+    name: "{{ SITE_SRC }}-ansible"
     state: directory
     owner: "{{ USER_NAME }}"
   become: yes
-  when: not APP_ANSIBLE_GIT_DIR.stat.exists
-- name: Clone the {{ APP_ANSIBLE_REPO }} source code into {{ APP_SRC }}-ansible
+  when: not SITE_ANSIBLE_GIT_DIR.stat.exists
+- name: Clone the {{ SITE_ANSIBLE_REPO }} source code into {{ SITE_SRC }}-ansible
   git:
-    repo: "{{ APP_ANSIBLE_REPO }}"
-    dest: "{{ APP_SRC }}-ansible"
-  when: not APP_ANSIBLE_GIT_DIR.stat.exists
+    repo: "{{ SITE_ANSIBLE_REPO }}"
+    dest: "{{ SITE_SRC }}-ansible"
+  when: not SITE_ANSIBLE_GIT_DIR.stat.exists
 
 ###########
 # Service #
 ###########
 
-- name: Create the {{ APP_NAME }} systemd services. 
+- name: Create the {{ SITE_NAME }} systemd services. 
   template:
     src: project_service
-    dest: "/usr/lib/systemd/system/watch-{{ item.APP_NAME }}.service"
+    dest: "/usr/lib/systemd/system/watch-{{ item.SITE_NAME }}.service"
   become: yes
-  loop: "{{ APP_SERVICES }}"
+  loop: "{{ SITE_SERVICES }}"
   when: ENABLE_CODE_GENERATION_SERVICE and ansible_pkg_mgr != 'homebrew'
-- name: Create the {{ item.APP_NAME }} config dirs. 
+- name: Create the {{ item.SITE_NAME }} config dirs. 
   file:
-    name: "{{ item.APP_SRC }}/config"
+    name: "{{ item.SITE_SRC }}/config"
     state: directory
     owner: "{{ USER_NAME }}"
-  loop: "{{ APP_SERVICES }}"
-- name: Create the {{ item.APP_NAME }} enUS configs. 
+  loop: "{{ SITE_SERVICES }}"
+- name: Create the {{ item.SITE_NAME }} enUS configs. 
   template:
-    src: "{{ item.APP_SRC }}/config/template.yml"
-    dest: "{{ item.APP_SRC }}/config/{{ item.APP_NAME }}.yml"
-  loop: "{{ APP_SERVICES }}"
+    src: "{{ item.SITE_SRC }}/config/template.yml"
+    dest: "{{ item.SITE_SRC }}/config/{{ item.SITE_NAME }}.yml"
+  loop: "{{ SITE_SERVICES }}"
 - name: Reload the services. 
   systemd:
     daemon_reload: yes
   become: yes
-  loop: "{{ APP_SERVICES }}"
+  loop: "{{ SITE_SERVICES }}"
   when: ENABLE_CODE_GENERATION_SERVICE and ansible_pkg_mgr != 'homebrew'
-- name: Start and enable the {{ item.APP_NAME }} services. 
+- name: Start and enable the {{ item.SITE_NAME }} services. 
   service:
-    name: "watch-{{ item.APP_NAME }}"
+    name: "watch-{{ item.SITE_NAME }}"
     enabled: yes
     state: restarted
   become: yes
-  loop: "{{ APP_SERVICES }}"
+  loop: "{{ SITE_SERVICES }}"
   when: ENABLE_CODE_GENERATION_SERVICE and ansible_pkg_mgr != 'homebrew'
-- name: Create the {{ APP_NAME }} launchd service {{ APP_SYSTEMD }}.
+- name: Create the {{ SITE_NAME }} launchd service {{ SITE_SYSTEMD }}.
   template:
     src: project_launchd_service
     dest: "~/Library/LaunchAgents/org.project.plist"
-  loop: "{{ APP_SERVICES }}"
+  loop: "{{ SITE_SERVICES }}"
   when: ENABLE_CODE_GENERATION_SERVICE and ansible_pkg_mgr == 'homebrew'
-- name: Load the {{ APP_NAME }} launchd service {{ APP_SYSTEMD }}.
+- name: Load the {{ SITE_NAME }} launchd service {{ SITE_SYSTEMD }}.
   shell: launchctl load ~/Library/LaunchAgents/org.project.plist
   when: ENABLE_CODE_GENERATION_SERVICE and ansible_pkg_mgr == 'homebrew'
-- name: Start the {{ APP_NAME }} launchd service {{ APP_SYSTEMD }}.
+- name: Start the {{ SITE_NAME }} launchd service {{ SITE_SYSTEMD }}.
   shell: launchctl start org.project
   when: ENABLE_CODE_GENERATION_SERVICE and ansible_pkg_mgr == 'homebrew'
   changed_when: false
@@ -216,19 +214,19 @@
     owner: "{{ USER_NAME }}"
   become: yes
   when: SITE_BASE_URL is regex("^https://")
-- name: Create the {{ APP_NAME }} keystore properties {{ SSL_KEYSTORE_PATH }}/{{ SSL_PROPERTIES_FILENAME }}
+- name: Create the {{ SITE_NAME }} keystore properties {{ SSL_KEYSTORE_PATH }}/{{ SSL_PROPERTIES_FILENAME }}
   template:
     src: project_keystore.properties
     dest: "{{ SSL_KEYSTORE_PATH }}/{{ SSL_PROPERTIES_FILENAME }}"
   when: SITE_BASE_URL is regex("^https://")
-- name: Create the {{ APP_NAME }} keystore jks {{ SSL_JKS_PATH }}
+- name: Create the {{ SITE_NAME }} keystore jks {{ SSL_JKS_PATH }}
   shell: echo {{ SSL_JKS_BASE64 }} | base64 -d > {{ SSL_JKS_PATH }}
   when: SITE_BASE_URL is regex("^https://")
 - name: Build the source code in /usr/local/src/computate
   shell: "mvn clean install"
   args:
     chdir: "/usr/local/src/computate"
-- name: Build the source code in {{ APP_SRC }}
+- name: Build the source code in {{ SITE_SRC }}
   shell: "mvn clean install"
   args:
-    chdir: "{{ APP_SRC }}"
+    chdir: "{{ SITE_SRC }}"
