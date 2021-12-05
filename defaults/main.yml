@@ -12,7 +12,7 @@ USER_NAME: "{{ lookup('env', 'USER') }}"
 ###########################
 
 # The path to the Ansible defaults for the application. 
-SITE_DEFAULTS: "/usr/local/src/{{ SITE_NAME }}/config/defaults.yml"
+SITE_DEFAULTS: "{{ lookup('env', 'HOME') }}/.local/src/{{ SITE_NAME }}/config/defaults.yml"
 
 # The path to the system python binary. 
 SYSTEM_PYTHON: "{{ '/usr/bin/python' if lookup('file', '/usr/bin/python', errors='ignore') else '/usr/bin/python3' }}"
@@ -27,9 +27,9 @@ LANGUAGE_NAME: "{{ SITE_LOCALE | replace('-', '') }}"
 # The name of this application. 
 GITHUB_ORG: "..."
 # The default source code directory for the computate application which helps generate and translate most the code. 
-COMPUTATE_SRC: "/usr/local/src/computate"
+COMPUTATE_SRC: "{{ lookup('env', 'HOME') }}/.local/src/computate"
 # The default source code directory for the project. 
-SITE_SRC: "/usr/local/src/{{ SITE_NAME }}"
+SITE_SRC: "{{ lookup('env', 'HOME') }}/.local/src/{{ SITE_NAME }}"
 # The default language of the project code which is US English. 
 SITE_LANG: "enUS"
 # The default config file for the project. 
@@ -143,10 +143,6 @@ JDBC_PASSWORD: "{{ lookup('password', '/dev/null chars=ascii_letters,digits,hexd
 JDBC_DATABASE: "{{ SITE_NAME }}"
 # The Java main class of the site. 
 JAVA_MAIN_CLASS: "{{ SITE_JAVA_PACKAGE }}.vertx.AppVertx"
-# The backup directory of the site. 
-BACKUP_DIR: "/usr/local/src/{{ SITE_NAME }}-static/data/enUS"
-# The restore directory of the site. 
-RESTORE_DIR: "~/backup/{{ SITE_NAME }}-dev/enUS"
 # The base URL where the static files will point to.  
 STATIC_BASE_URL: "{{ SITE_BASE_URL }}/static"
 # The path to the static files. 
