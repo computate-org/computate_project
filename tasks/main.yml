@@ -7,26 +7,26 @@
   stat:
     path: /usr/bin/git
   register: GIT_EXISTS
-- name: Install git dependencies
-  package:
-    name: [git]
-    state: present
-  become: yes
-  vars:
-    ansible_python_interpreter: "{{ SYSTEM_PYTHON }}"
-  when: not GIT_EXISTS.stat.exists
+  #- name: Install git dependencies
+  #  package:
+  #    name: [git]
+  #    state: present
+  #  become: yes
+  #  vars:
+  #    ansible_python_interpreter: "{{ SYSTEM_PYTHON }}"
+  #  when: not GIT_EXISTS.stat.exists
 - name: Check if javac binary exists
   stat:
     path: /usr/bin/javac
   register: JAVAC_EXISTS
-- name: Install java dependencies
-  package:
-    name: [git,java-1.8.0-openjdk]
-    state: present
-  become: yes
-  vars:
-    ansible_python_interpreter: "{{ SYSTEM_PYTHON }}"
-  when: not JAVAC_EXISTS.stat.exists
+  #- name: Install java dependencies
+  #  package:
+  #    name: [git,java-1.8.0-openjdk]
+  #    state: present
+  #  become: yes
+  #  vars:
+  #    ansible_python_interpreter: "{{ SYSTEM_PYTHON }}"
+  #  when: not JAVAC_EXISTS.stat.exists
 
 ###############
 # Project dir #
@@ -44,8 +44,6 @@
   file:
     name: "{{ SITE_SRC }}"
     state: directory
-    owner: "{{ USER_NAME }}"
-  become: yes
   when: not SITE_GIT_DIR.stat.exists and not SITE_README.stat.exists
 - name: Clone the {{ SITE_REPO }} source code into {{ SITE_SRC }}
   git:
@@ -65,8 +63,6 @@
   file:
     name: "{{ SITE_SRC }}-static"
     state: directory
-    owner: "{{ USER_NAME }}"
-  become: yes
   when: not SITE_STATIC_GIT_DIR.stat.exists
 - name: Clone the {{ SITE_STATIC_REPO }} source code into {{ SITE_SRC }}-static
   git:
@@ -86,8 +82,6 @@
   file:
     name: "{{ SITE_SRC }}-ansible"
     state: directory
-    owner: "{{ USER_NAME }}"
-  become: yes
   when: not SITE_ANSIBLE_GIT_DIR.stat.exists
 - name: Clone the {{ SITE_ANSIBLE_REPO }} source code into {{ SITE_SRC }}-ansible
   git:
@@ -102,8 +96,7 @@
 - name: Create the {{ SITE_NAME }} systemd services. 
   template:
     src: project_service
-    dest: "/usr/lib/systemd/system/watch-{{ item.SITE_NAME }}.service"
-  become: yes
+    dest: "{{SITE_SYSTEMD }}"
   loop: "{{ SITE_SERVICES }}"
   when: ENABLE_CODE_GENERATION_SERVICE and ansible_pkg_mgr != 'homebrew'
 - name: Create the {{ item.SITE_NAME }} config dirs. 
@@ -120,7 +113,7 @@
 - name: Reload the services. 
   systemd:
     daemon_reload: yes
-  become: yes
+    scope: "{{ 'system' if ansible_distribution_file_variety == 'RedHat' and (ansible_distribution_major_version | int) <= 7 else 'user' }}"
   loop: "{{ SITE_SERVICES }}"
   when: ENABLE_CODE_GENERATION_SERVICE and ansible_pkg_mgr != 'homebrew'
 - name: Start and enable the {{ item.SITE_NAME }} services. 
@@ -128,7 +121,7 @@
     name: "watch-{{ item.SITE_NAME }}"
     enabled: yes
     state: restarted
-  become: yes
+    scope: "{{ 'system' if ansible_distribution_file_variety == 'RedHat' and (ansible_distribution_major_version | int) <= 7 else 'user' }}"
   loop: "{{ SITE_SERVICES }}"
   when: ENABLE_CODE_GENERATION_SERVICE and ansible_pkg_mgr != 'homebrew'
 - name: Create the {{ SITE_NAME }} launchd service {{ SITE_SYSTEMD }}.
@@ -157,8 +150,8 @@
     login_unix_socket: /tmp
     login_user: "{{ POSTGRES_BECOME_USER }}"
     db: postgres
-  become: true
-  become_user: "{{ POSTGRES_BECOME_USER }}"
+    #  become: true
+    #  become_user: "{{ POSTGRES_BECOME_USER }}"
 - name: Create enUS database
   postgresql_db:
     name: "{{ JDBC_DATABASE }}"
@@ -166,8 +159,8 @@
     login_unix_socket: /tmp
     login_user: "{{ POSTGRES_BECOME_USER }}"
     db: postgres
-  become: true
-  become_user: "{{ POSTGRES_BECOME_USER }}"
+    #  become: true
+    #  become_user: "{{ POSTGRES_BECOME_USER }}"
 - name: Grant user access to database
   postgresql_pg_hba:
     dest: "{{ POSTGRES_HBA_CONF }}"
@@ -177,13 +170,13 @@
     databases: "{{ JDBC_DATABASE }}"
     method: md5
     create: true
-  become: true
-  become_user: "{{POSTGRES_BECOME_USER}}"
+    #  become: true
+    #  become_user: "{{POSTGRES_BECOME_USER}}"
 - name: Restart the postgresql service. 
   service:
     name: "{{ POSTGRES_SERVICE }}"
     state: restarted
-  become: yes
+    scope: "{{ 'system' if ansible_distribution_file_variety == 'RedHat' and (ansible_distribution_major_version | int) <= 7 else 'user' }}"
   when: ansible_pkg_mgr != 'homebrew'
 - name: Start the {{ POSTGRES_NAME }} launchd service.
   shell: launchctl start org.postgresql
@@ -212,7 +205,6 @@
     name: "{{ SSL_KEYSTORE_PATH }}"
     state: directory
     owner: "{{ USER_NAME }}"
-  become: yes
   when: SITE_BASE_URL is regex("^https://")
 - name: Create the {{ SITE_NAME }} keystore properties {{ SSL_KEYSTORE_PATH }}/{{ SSL_PROPERTIES_FILENAME }}
   template:
@@ -222,10 +214,10 @@
 - name: Create the {{ SITE_NAME }} keystore jks {{ SSL_JKS_PATH }}
   shell: echo {{ SSL_JKS_BASE64 }} | base64 -d > {{ SSL_JKS_PATH }}
   when: SITE_BASE_URL is regex("^https://")
-- name: Build the source code in /usr/local/src/computate
+- name: Build the source code in {{ COMPUTATE_SRC }}
   shell: "mvn clean install"
   args:
-    chdir: "/usr/local/src/computate"
+    chdir: "{{ COMPUTATE_SRC }}"
 - name: Build the source code in {{ SITE_SRC }}
   shell: "mvn clean install"
   args:

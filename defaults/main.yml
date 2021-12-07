@@ -39,7 +39,7 @@ SITE_CONFIG_enUS: "{{ SITE_SRC }}/config/{{ SITE_NAME }}-enUS.config"
 # The systemd service name for project that generates and translates most of the code. 
 SITE_SERVICE: "watch-{{ SITE_NAME }}"
 # The systemd service file for project that generates and translates most of the code. 
-SITE_SYSTEMD: "/usr/lib/systemd/system/{{ SITE_SERVICE }}.service"
+SITE_SYSTEMD: "{{ '/usr/lib/systemd/system' if ansible_distribution_file_variety == 'RedHat' and (ansible_distribution_major_version | int) <= 7 else (lookup('env', 'HOME') + '/.config/systemd/user') }}/{{ SITE_SERVICE }}.service"
 # The main git repository for the project. 
 SITE_REPO: "git@github.com:{{ GITHUB_ORG }}/{{ SITE_NAME }}.git"
 # The name of this application. 
@@ -76,8 +76,9 @@ ZOOKEEPER_PORT: 2181
 # Solr defaults #
 #################
 
+SOLR_NAME: solr
 # The installation directory of Solr. 
-SOLR_OPT: /opt/solr
+SOLR_OPT: "{{ lookup('env', 'HOME') }}/.local/opt/{{ SOLR_NAME }}"
 # The default hostname for the Solr search engine. 
 SOLR_HOST_NAME: localhost
 # The default port that Solr runs. 
@@ -91,12 +92,15 @@ SOLR_URL_COMPUTATE: "http://{{ SOLR_HOST_NAME }}:{{ SOLR_PORT }}/solr/computate"
 # PostgreSQL defaults #
 #######################
 
+POSTGRES_NAME: postgres
+# The installation directory of PostgreSQL. 
+POSTGRES_OPT: "{{ lookup('env', 'HOME') }}/.local/opt/{{ POSTGRES_NAME }}"
 # The default hostname for the PostreSQL database. 
 POSTGRES_HOST_NAME: "localhost"
 # The default username that the PostgreSQL server runs with. 
 POSTGRES_BECOME_USER: "{{ USER_NAME }}"
 # The default path to the PostgreSQL hba file to manage user permissions. 
-POSTGRES_HBA_CONF: "/opt/postgres/data/pg_hba.conf"
+POSTGRES_HBA_CONF: "{{ POSTGRES_OPT }}/data/pg_hba.conf"
 # The default PostgreSQL service name. 
 POSTGRES_SERVICE: "postgres"
 
