@@ -4,8 +4,6 @@ After=network.target
 
 [Service]
 Type=simple
-User={{ USER_NAME }}
-Group={{ USER_NAME }}
 WorkingDirectory={{ item.SITE_SRC }}
 Environment=appName={{ item.SITE_NAME }}
 Environment=appPath={{ item.SITE_SRC }}
