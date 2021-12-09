@@ -95,7 +95,7 @@
 
 - name: Create the {{ SITE_NAME }} systemd services. 
   template:
-    src: project_service
+    src: project_systemd.service
     dest: "{{SITE_SYSTEMD }}"
   loop: "{{ SITE_SERVICES }}"
   when: ENABLE_CODE_GENERATION_SERVICE and ansible_pkg_mgr != 'homebrew'
