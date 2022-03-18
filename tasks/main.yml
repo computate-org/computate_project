@@ -108,7 +108,7 @@
   loop: "{{ SITE_SERVICES }}"
 - name: Create the {{ item.SITE_NAME }} enUS configs. 
   template:
-    src: "{{ item.SITE_SRC }}/config/template.yml"
+    src: "{{ item.SITE_SRC }}/local/template.yml"
     dest: "{{ item.SITE_SRC }}/config/{{ item.SITE_NAME }}.yml"
   loop: "{{ SITE_SERVICES }}"
 - name: Reload the services. 

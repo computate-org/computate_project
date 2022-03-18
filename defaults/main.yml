@@ -12,7 +12,7 @@ USER_NAME: "{{ lookup('env', 'USER') }}"
 ###########################
 
 # The path to the Ansible defaults for the application. 
-SITE_DEFAULTS: "{{ lookup('env', 'HOME') }}/.local/src/{{ SITE_NAME }}/config/defaults.yml"
+SITE_DEFAULTS: "{{ lookup('env', 'HOME') }}/.local/src/{{ SITE_NAME }}/local/defaults.yml"
 
 # The path to the system python binary. 
 SYSTEM_PYTHON: "{{ '/usr/bin/python' if lookup('file', '/usr/bin/python', errors='ignore') else '/usr/bin/python3' }}"
