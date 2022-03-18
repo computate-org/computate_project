@@ -4,4 +4,3 @@
   hosts: localhost
   roles:
     - computate.computate_project
-

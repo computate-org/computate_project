@@ -88,6 +88,7 @@
     repo: "{{ SITE_ANSIBLE_REPO }}"
     dest: "{{ SITE_SRC }}-ansible"
   when: not SITE_ANSIBLE_GIT_DIR.stat.exists
+  ignore_errors: true
 
 ###########
 # Service #
@@ -196,29 +197,15 @@
   shell: "{{ SOLR_OPT }}/bin/solr create -n computate -c {{ SOLR_COLLECTION }}"
   when: SOLR_COLLECTION_EXISTS.rc != 0
 
-###########
-# SSL/TLS #
-###########
+#####################
+# Build application #
+#####################
 
-- name: Create the keystore directory {{ SSL_KEYSTORE_PATH }}
-  file:
-    name: "{{ SSL_KEYSTORE_PATH }}"
-    state: directory
-    owner: "{{ USER_NAME }}"
-  when: SITE_BASE_URL is regex("^https://")
-- name: Create the {{ SITE_NAME }} keystore properties {{ SSL_KEYSTORE_PATH }}/{{ SSL_PROPERTIES_FILENAME }}
-  template:
-    src: project_keystore.properties
-    dest: "{{ SSL_KEYSTORE_PATH }}/{{ SSL_PROPERTIES_FILENAME }}"
-  when: SITE_BASE_URL is regex("^https://")
-- name: Create the {{ SITE_NAME }} keystore jks {{ SSL_JKS_PATH }}
-  shell: echo {{ SSL_JKS_BASE64 }} | base64 -d > {{ SSL_JKS_PATH }}
-  when: SITE_BASE_URL is regex("^https://")
 - name: Build the source code in {{ COMPUTATE_SRC }}
   shell: "mvn clean install"
   args:
     chdir: "{{ COMPUTATE_SRC }}"
-- name: Build the source code in {{ SITE_SRC }}
-  shell: "mvn clean install"
-  args:
-    chdir: "{{ SITE_SRC }}"
+#- name: Build the source code in {{ SITE_SRC }}
+#  shell: "mvn clean install"
+#  args:
+#    chdir: "{{ SITE_SRC }}"
