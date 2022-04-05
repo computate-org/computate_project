@@ -13,6 +13,9 @@ USER_NAME: "{{ lookup('env', 'USER') }}"
 
 # The path to the Ansible defaults for the application. 
 SITE_DEFAULTS: "{{ lookup('env', 'HOME') }}/.local/src/{{ SITE_NAME }}/local/defaults.yml"
+SITE_DEPENDENCIES_REDHAT:
+  - maven
+SITE_DEPENDENCIES: "{{ SITE_DEPENDENCIES_REDHAT if ansible_distribution_file_variety == 'RedHat' else SITE_DEPENDENCIES_REDHAT }}"
 
 # The path to the system python binary. 
 SYSTEM_PYTHON: "{{ '/usr/bin/python' if lookup('file', '/usr/bin/python', errors='ignore') else '/usr/bin/python3' }}"

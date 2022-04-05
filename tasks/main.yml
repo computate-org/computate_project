@@ -2,6 +2,16 @@
 - name: "Include default variables in {{ SITE_DEFAULTS }}"
   include_vars:
     file: "{{ SITE_DEFAULTS }}"
+- name: "Install dependencies as root: {{ SITE_DEPENDENCIES | join(' ') }}"
+  package:
+    name: "{{ SITE_DEPENDENCIES }}"
+  become: true
+  register: INSTALL_DEPENDENCIES
+  ignore_errors: true
+- name: "Install dependencies as user: {{ SITE_DEPENDENCIES | join(' ') }}"
+  shell: "pkcon install -y {{ item }} | true"
+  loop: "{{ SITE_DEPENDENCIES }}"
+  when: INSTALL_DEPENDENCIES.failed
 
 - name: Check if git binary exists
   stat:
