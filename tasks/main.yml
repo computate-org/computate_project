@@ -101,6 +101,10 @@
   ignore_errors: true
 
 ###########
+# Eclipse #
+###########
+
+###########
 # Service #
 ###########
 
@@ -193,6 +197,13 @@
   shell: launchctl start org.postgresql
   when: ansible_pkg_mgr == 'homebrew'
   changed_when: false
+- name: Create the database tables
+  postgresql_query:
+    db: "{{ JDBC_DATABASE }}"
+    login_unix_socket: /tmp
+    login_user: "{{ JDBC_USERNAME }}"
+    path_to_script: "{{ SITE_SRC }}/src/main/resources/sql/db-create.sql"
+  ignore_errors: true
 
 ###############
 # Solr Search #
