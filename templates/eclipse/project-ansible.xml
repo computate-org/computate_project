@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-        <name>{{ item.SITE_SRC }}-ansible</name>
+        <name>{{ SITE_SRC }}-ansible</name>
         <comment></comment>
         <projects>
         </projects>

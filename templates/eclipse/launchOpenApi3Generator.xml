@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
     <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-        <listEntry value="/{{ item.SITE_SRC }}/src/main/java/{{ item.SITE_JAVA_PACKAGE | replace('.', '/') }}/{{ RELATIVE_PACKAGE_MainVerticle | replace('.', '/') }}/{{ CLASS_SIMPLE_NAME_MainVerticle }}.java"/>
+        <listEntry value="{{ SITE_SRC }}/src/main/java/{{ SITE_JAVA_PACKAGE | replace('.', '/') }}/{{ RELATIVE_PACKAGE_MainVerticle | replace('.', '/') }}/{{ CLASS_SIMPLE_NAME_MainVerticle }}.java"/>
     </listAttribute>
     <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
         <listEntry value="1"/>
     </listAttribute>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
-        <mapEntry key="CONFIG_PATH" value="{{ PROJECT.PROJECT_SRC }}/config/{{ item.SITE_SRC }}.yml"/>
+        <mapEntry key="CONFIG_PATH" value="{{ SITE_SRC }}/config/{{ SITE_NAME }}.yml"/>
 {% if RUN_OPENAPI3_GENERATOR %}
         <mapEntry key="RUN_OPENAPI3_GENERATOR" value="true"/>
 {% endif %}
@@ -21,7 +21,7 @@
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_ATTR_USE_ARGFILE" value="false"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_EXCLUDE_TEST_CODE" value="true"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_CLASSPATH_ONLY_JAR" value="false"/>
-    <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="{{ item.SITE_JAVA_PACKAGE }}/{{ RELATIVE_PACKAGE_MainVerticle }}/{{ CLASS_SIMPLE_NAME_MainVerticle }}"/>
-    <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="{{ item.SITE_SRC }} OpenApi3Generator"/>
-    <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="{{ item.SITE_SRC }}"/>
+    <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="{{ SITE_JAVA_PACKAGE }}.{{ RELATIVE_PACKAGE_MainVerticle }}.{{ CLASS_SIMPLE_NAME_MainVerticle }}"/>
+    <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="{{ SITE_NAME }} OpenApi3Generator"/>
+    <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="{{ SITE_NAME }}"/>
 </launchConfiguration>

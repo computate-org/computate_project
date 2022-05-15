@@ -104,6 +104,35 @@
 # Eclipse #
 ###########
 
+- name: Create the {{ SITE_SRC }}/.project
+  template:
+    src: eclipse/project.xml
+    dest: "{{ SITE_SRC }}/.project"
+- name: Create the {{ SITE_SRC }}-static/.project
+  template:
+    src: eclipse/project-static.xml
+    dest: "{{ SITE_SRC }}-static/.project"
+- name: Create the {{ SITE_SRC }}-ansible/.project
+  template:
+    src: eclipse/project-ansible.xml
+    dest: "{{ SITE_SRC }}-ansible/.project"
+- name: Create the {{ SITE_SRC }}/.classpath
+  template:
+    src: eclipse/classpath.xml
+    dest: "{{ SITE_SRC }}/.classpath"
+- name: "Create the project file directory {{ SITE_SRC | dirname }}/.metadata/.plugins/org.eclipse.debug.core/.launches"
+  file:
+    state: directory
+    path: "{{ SITE_SRC | dirname }}/.metadata/.plugins/org.eclipse.debug.core/.launches"
+- name: Create the {{ SITE_SRC | dirname }}/.metadata/.plugins/org.eclipse.debug.core/.launches/{{ SITE_NAME }}.launch
+  template:
+    src: eclipse/launchMainVerticle.xml
+    dest: "{{ SITE_SRC | dirname }}/.metadata/.plugins/org.eclipse.debug.core/.launches/{{ SITE_NAME }}.launch"
+- name: Create the {{ SITE_SRC | dirname }}/.metadata/.plugins/org.eclipse.debug.core/.launches/{{ SITE_NAME }}-OpenApi3Generator.launch
+  template:
+    src: eclipse/launchOpenApi3Generator.xml
+    dest: "{{ SITE_SRC | dirname }}/.metadata/.plugins/org.eclipse.debug.core/.launches/{{ SITE_NAME }}-OpenApi3Generator.launch"
+
 ###########
 # Service #
 ###########
@@ -226,7 +255,7 @@
   shell: "mvn clean install"
   args:
     chdir: "{{ COMPUTATE_SRC }}"
-#- name: Build the source code in {{ SITE_SRC }}
-#  shell: "mvn clean install"
-#  args:
-#    chdir: "{{ SITE_SRC }}"
+- name: Build the source code in {{ SITE_SRC }}
+  shell: "mvn clean install"
+  args:
+    chdir: "{{ SITE_SRC }}"
