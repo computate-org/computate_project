@@ -79,6 +79,7 @@
     repo: "{{ SITE_STATIC_REPO }}"
     dest: "{{ SITE_SRC }}-static"
   when: not SITE_STATIC_GIT_DIR.stat.exists
+  ignore_errors: true
 
 ###############
 # Ansible dir #
@@ -120,18 +121,22 @@
   template:
     src: eclipse/classpath.xml
     dest: "{{ SITE_SRC }}/.classpath"
+  when: ENABLE_LAUNCH
 - name: "Create the project file directory {{ SITE_SRC | dirname }}/.metadata/.plugins/org.eclipse.debug.core/.launches"
   file:
     state: directory
     path: "{{ SITE_SRC | dirname }}/.metadata/.plugins/org.eclipse.debug.core/.launches"
+  when: ENABLE_LAUNCH
 - name: Create the {{ SITE_SRC | dirname }}/.metadata/.plugins/org.eclipse.debug.core/.launches/{{ SITE_NAME }}.launch
   template:
     src: eclipse/launchMainVerticle.xml
     dest: "{{ SITE_SRC | dirname }}/.metadata/.plugins/org.eclipse.debug.core/.launches/{{ SITE_NAME }}.launch"
+  when: ENABLE_LAUNCH
 - name: Create the {{ SITE_SRC | dirname }}/.metadata/.plugins/org.eclipse.debug.core/.launches/{{ SITE_NAME }}-OpenApi3Generator.launch
   template:
     src: eclipse/launchOpenApi3Generator.xml
     dest: "{{ SITE_SRC | dirname }}/.metadata/.plugins/org.eclipse.debug.core/.launches/{{ SITE_NAME }}-OpenApi3Generator.launch"
+  when: ENABLE_LAUNCH
 
 ###########
 # Service #
@@ -154,6 +159,7 @@
     src: "{{ item.SITE_SRC }}/local/template.yml"
     dest: "{{ item.SITE_SRC }}/config/{{ item.SITE_NAME }}.yml"
   loop: "{{ SITE_SERVICES }}"
+  when: ENABLE_CONFIG_TEMPLATE
 - name: Reload the services. 
   systemd:
     daemon_reload: yes

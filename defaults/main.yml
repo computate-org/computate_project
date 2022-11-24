@@ -10,6 +10,10 @@ USER_NAME: "{{ lookup('env', 'USER') }}"
 ###########################
 # project system defaults #
 ###########################
+ENABLE_STATIC: true
+ENABLE_ANSIBLE: true
+ENABLE_LAUNCH: true
+ENABLE_CONFIG_TEMPLATE: true
 
 # The path to the Ansible defaults for the application. 
 SITE_DEFAULTS: "{{ lookup('env', 'HOME') }}/.local/src/{{ SITE_NAME }}/local/defaults.yml"
@@ -31,7 +35,9 @@ SITE_NAME: "..."
 SITE_LOCALE: en-US
 # The name of the language of the code. 
 LANGUAGE_NAME: "{{ SITE_LOCALE | replace('-', '') }}"
-# The name of this application. 
+# The paths to the internationalization for this project. 
+I18N_PATHS: ["{{ lookup('env', 'HOME') }}/.local/src/computate/src/main/resources/org/computate/i18n/i18n_enUS.yml"]
+# The GitHub organization for this project. 
 GITHUB_ORG: "..."
 # The default source code directory for the computate application which helps generate and translate most the code. 
 COMPUTATE_SRC: "{{ lookup('env', 'HOME') }}/.local/src/computate"
@@ -213,34 +219,3 @@ AUTH_SECRET: "..."
 AUTH_URL: "{{ 'https' if AUTH_PORT == 443 else 'http' }}://{{ AUTH_HOST_NAME }}{{ '' if AUTH_PORT == 443 else (':' + AUTH_PORT)}}/auth"
 # The Auth URL to retrieve tokens. 
 AUTH_TOKEN_URI: "/auth/realms/{{ AUTH_REALM }}/protocol/openid-connect/token"
-
-####################
-# SSL/TLS defaults #
-####################
-
-# The keystore alias. 
-SSL_ALIAS: "{{ DOMAIN_NAME }}"
-# The keystore directory. 
-SSL_KEYSTORE_PATH: /opt/keystore
-# The keystore properties filename. 
-SSL_PROPERTIES_FILENAME: "{{ SITE_SSL_PROPERTIES_FILENAME }}"
-# The keystore filename. 
-SSL_JKS_FILENAME: "{{ SSL_ALIAS }}.jks"
-# The keystore path. 
-SSL_JKS_PATH: "{{ SSL_KEYSTORE_PATH }}/{{ SSL_JKS_FILENAME }}"
-# The certificate filename. 
-SSL_CRT_FILENAME: "{{ SSL_ALIAS }}.crt"
-# The certificate path. 
-SSL_CRT_PATH: "{{ SSL_KEYSTORE_PATH }}/{{ SSL_CRT_FILENAME }}"
-# The private key filename. 
-SSL_KEY_FILENAME: "{{ SSL_ALIAS }}.key"
-# The private key path. 
-SSL_KEY_PATH: "{{ SSL_KEYSTORE_PATH }}/{{ SSL_KEY_FILENAME }}"
-# The p12 file password. 
-SSL_P12_PASSWORD: "..."
-# The keystore file password. 
-SSL_JKS_PASSWORD: "{{ SSL_P12_PASSWORD }}"
-# The keystore file base64 encoded (base64 -w 0 /opt/keystore/{{ DOMAIN_NAME }}.jks). 
-SSL_JKS_BASE64: "/opt/keystore/{{ DOMAIN_NAME }}.jks"
-# The jceks file base64 encoded (base64 -w 0 /opt/keystore/{{ DOMAIN_NAME }}.jceks). 
-SSL_JCEKS_BASE64: "/opt/keystore/{{ DOMAIN_NAME }}.jceks"
