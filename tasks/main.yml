@@ -81,47 +81,27 @@
   when: not SITE_STATIC_GIT_DIR.stat.exists
   ignore_errors: true
 
-###############
-# Ansible dir #
-###############
-
-- name: Check for the {{ SITE_ANSIBLE_NAME }} .git directory
-  stat:
-    path: "{{ SITE_SRC }}-ansible/.git"
-  register: SITE_ANSIBLE_GIT_DIR
-- name: Create the {{ SITE_ANSIBLE_NAME }} source directory {{ SITE_SRC }}-ansible
-  file:
-    name: "{{ SITE_SRC }}-ansible"
-    state: directory
-  when: not SITE_ANSIBLE_GIT_DIR.stat.exists
-- name: Clone the {{ SITE_ANSIBLE_REPO }} source code into {{ SITE_SRC }}-ansible
-  git:
-    repo: "{{ SITE_ANSIBLE_REPO }}"
-    dest: "{{ SITE_SRC }}-ansible"
-  when: not SITE_ANSIBLE_GIT_DIR.stat.exists
-  ignore_errors: true
-
 ###########
 # Eclipse #
 ###########
 
-- name: Create the {{ SITE_SRC }}/.project
-  template:
-    src: eclipse/project.xml
-    dest: "{{ SITE_SRC }}/.project"
-- name: Create the {{ SITE_SRC }}-static/.project
-  template:
-    src: eclipse/project-static.xml
-    dest: "{{ SITE_SRC }}-static/.project"
-- name: Create the {{ SITE_SRC }}-ansible/.project
-  template:
-    src: eclipse/project-ansible.xml
-    dest: "{{ SITE_SRC }}-ansible/.project"
-- name: Create the {{ SITE_SRC }}/.classpath
-  template:
-    src: eclipse/classpath.xml
-    dest: "{{ SITE_SRC }}/.classpath"
-  when: ENABLE_LAUNCH
+#- name: Create the {{ SITE_SRC }}/.project
+#  template:
+#    src: eclipse/project.xml
+#    dest: "{{ SITE_SRC }}/.project"
+#- name: Create the {{ SITE_SRC }}-static/.project
+#  template:
+#    src: eclipse/project-static.xml
+#    dest: "{{ SITE_SRC }}-static/.project"
+#- name: Create the {{ SITE_SRC }}-ansible/.project
+#  template:
+#    src: eclipse/project-ansible.xml
+#    dest: "{{ SITE_SRC }}-ansible/.project"
+#- name: Create the {{ SITE_SRC }}/.classpath
+#  template:
+#    src: eclipse/classpath.xml
+#    dest: "{{ SITE_SRC }}/.classpath"
+#  when: ENABLE_LAUNCH
 - name: "Create the project file directory {{ SITE_SRC | dirname }}/.metadata/.plugins/org.eclipse.debug.core/.launches"
   file:
     state: directory
@@ -154,6 +134,52 @@
     state: directory
     owner: "{{ USER_NAME }}"
   loop: "{{ SITE_SERVICES }}"
+
+############################
+# Lookup OpenShift Secrets #
+############################
+
+- name: Set some facts
+  set_fact:
+    KAFKA_BROKERS: "localhost:{{ KAFKA_PORT }}"
+    KAFKA_SECURITY_PROTOCOL: SSL
+    KAFKA_SSL_KEYSTORE_TYPE: pkcs12
+    KAFKA_SSL_KEYSTORE_LOCATION: "{{ SITE_SRC }}/config/kafka-user.p12"
+    KAFKA_SSL_TRUSTSTORE_TYPE: pkcs12
+    KAFKA_SSL_TRUSTSTORE_LOCATION: "{{ SITE_SRC }}/config/kafka-ca.p12"
+- name: Get JDBC_PASSWORD
+  set_fact:
+    JDBC_PASSWORD: "{{ query('kubernetes.core.k8s', kind='Secret', resource_name=POSTGRES_SECRET, namespace=OPENSHIFT_NAMESPACE, validate_certs=false)[0].data.password | b64decode }}"
+- name: Get KAFKA_SSL_KEYSTORE_PASSWORD
+  set_fact:
+    KAFKA_SSL_KEYSTORE_PASSWORD: "{{ query('kubernetes.core.k8s', kind='Secret', resource_name=KAFKA_SSL_KEYSTORE_SECRET, namespace=OPENSHIFT_NAMESPACE, validate_certs=false)[0].data['user.password'] | b64decode }}"
+- name: Get KAFKA_SSL_KEYSTORE_P12
+  set_fact:
+    KAFKA_SSL_KEYSTORE_P12: "{{ query('kubernetes.core.k8s', kind='Secret', resource_name=KAFKA_SSL_KEYSTORE_SECRET, namespace=OPENSHIFT_NAMESPACE, validate_certs=false)[0].data['user.p12'] }}"
+- name: Get KAFKA_SSL_TRUSTSTORE_PASSWORD
+  set_fact:
+    KAFKA_SSL_TRUSTSTORE_PASSWORD: "{{ query('kubernetes.core.k8s', kind='Secret', resource_name=KAFKA_SSL_TRUSTSTORE_SECRET, namespace=OPENSHIFT_NAMESPACE, validate_certs=false)[0].data['ca.password'] | b64decode }}"
+- name: Get KAFKA_SSL_TRUSTSTORE_P12
+  set_fact:
+    KAFKA_SSL_TRUSTSTORE_P12: "{{ query('kubernetes.core.k8s', kind='Secret', resource_name=KAFKA_SSL_TRUSTSTORE_SECRET, namespace=OPENSHIFT_NAMESPACE, validate_certs=false)[0].data['ca.p12'] }}"
+
+#################
+# Create config #
+#################
+
+- name: Write KAFKA_SSL_KEYSTORE_LOCATION
+  copy:
+    dest: "{{ KAFKA_SSL_KEYSTORE_LOCATION }}"
+    content: "{{ KAFKA_SSL_KEYSTORE_P12 | b64decode }}"
+- name: Write KAFKA_SSL_TRUSTSTORE_LOCATION
+  copy:
+    dest: "{{ KAFKA_SSL_TRUSTSTORE_LOCATION }}"
+    content: "{{ KAFKA_SSL_TRUSTSTORE_P12 | b64decode }}"
+- name: Check if config exists
+  stat:
+    path: "{{ item.SITE_SRC }}/config/{{ item.SITE_NAME }}.yml"
+  loop: "{{ SITE_SERVICES }}"
+  register: CONFIG_EXISTS
 - name: Create the {{ item.SITE_NAME }} enUS configs. 
   template:
     src: "{{ item.SITE_SRC }}/local/template.yml"
@@ -188,70 +214,98 @@
   when: ENABLE_CODE_GENERATION_SERVICE and ansible_pkg_mgr == 'homebrew'
   changed_when: false
 
-
 ##############
 # PostgreSQL #
 ##############
 
-- name: Create enUS database user
-  postgresql_user:
-    name: "{{ JDBC_USERNAME }}"
-    password: "{{ JDBC_PASSWORD }}"
-    login_unix_socket: /tmp
-    login_user: "{{ POSTGRES_BECOME_USER }}"
-    db: postgres
-    #  become: true
-    #  become_user: "{{ POSTGRES_BECOME_USER }}"
-- name: Create enUS database
-  postgresql_db:
-    name: "{{ JDBC_DATABASE }}"
-    owner: "{{ JDBC_USERNAME }}"
-    login_unix_socket: /tmp
-    login_user: "{{ POSTGRES_BECOME_USER }}"
-    db: postgres
-    #  become: true
-    #  become_user: "{{ POSTGRES_BECOME_USER }}"
-- name: Grant user access to database
-  postgresql_pg_hba:
-    dest: "{{ POSTGRES_HBA_CONF }}"
-    contype: host
-    users: "{{ JDBC_USERNAME }}"
-    source: "all"
-    databases: "{{ JDBC_DATABASE }}"
-    method: md5
-    create: true
-    #  become: true
-    #  become_user: "{{POSTGRES_BECOME_USER}}"
-- name: Restart the postgresql service. 
-  service:
-    name: "{{ POSTGRES_SERVICE }}"
-    state: restarted
-    scope: "{{ 'system' if ansible_distribution_file_variety == 'RedHat' and (ansible_distribution_major_version | int) <= 7 else 'user' }}"
-  when: ansible_pkg_mgr != 'homebrew'
-- name: Start the {{ POSTGRES_NAME }} launchd service.
-  shell: launchctl start org.postgresql
-  when: ansible_pkg_mgr == 'homebrew'
-  changed_when: false
-- name: Create the database tables
-  postgresql_query:
-    db: "{{ JDBC_DATABASE }}"
-    login_unix_socket: /tmp
-    login_user: "{{ JDBC_USERNAME }}"
-    path_to_script: "{{ SITE_SRC }}/src/main/resources/sql/db-create.sql"
-  ignore_errors: true
+#- name: Create enUS database user
+#  postgresql_user:
+#    login_host: "localhost"
+#    port: "{{ JDBC_PORT }}"
+#    name: "{{ JDBC_USERNAME }}"
+#    password: "{{ JDBC_PASSWORD }}"
+#    login_user: "{{ POSTGRES_BECOME_USER }}"
+#    db: postgres
+#    #  become: true
+#    #  become_user: "{{ POSTGRES_BECOME_USER }}"
+#- name: Create enUS database
+#  postgresql_db:
+#    login_host: "localhost"
+#    port: "{{ JDBC_PORT }}"
+#    name: "{{ JDBC_DATABASE }}"
+#    owner: "{{ JDBC_USERNAME }}"
+#    login_user: "{{ POSTGRES_BECOME_USER }}"
+#    db: postgres
+#    #  become: true
+#    #  become_user: "{{ POSTGRES_BECOME_USER }}"
+#- name: Grant user access to database
+#  postgresql_pg_hba:
+#    login_host: "localhost"
+#    port: "{{ JDBC_PORT }}"
+#    dest: "{{ POSTGRES_HBA_CONF }}"
+#    contype: host
+#    users: "{{ JDBC_USERNAME }}"
+#    source: "all"
+#    databases: "{{ JDBC_DATABASE }}"
+#    method: md5
+#    create: true
+#    #  become: true
+#    #  become_user: "{{POSTGRES_BECOME_USER}}"
+#- name: Restart the postgresql service. 
+#  service:
+#    name: "{{ POSTGRES_SERVICE }}"
+#    state: restarted
+#    scope: "{{ 'system' if ansible_distribution_file_variety == 'RedHat' and (ansible_distribution_major_version | int) <= 7 else 'user' }}"
+#  when: ansible_pkg_mgr != 'homebrew'
+#- name: Start the {{ POSTGRES_NAME }} launchd service.
+#  shell: launchctl start org.postgresql
+#  when: ansible_pkg_mgr == 'homebrew'
+#  changed_when: false
+#- name: Create the database tables
+#  postgresql_query:
+#    db: "{{ JDBC_DATABASE }}"
+#    login_unix_socket: /tmp
+#    login_user: "{{ JDBC_USERNAME }}"
+#    path_to_script: "{{ SITE_SRC }}/src/main/resources/sql/db-create.sql"
+#  ignore_errors: true
 
 ###############
 # Solr Search #
 ###############
 
-- name: Check for existing solr collection enUS
-  shell: "{{ SOLR_OPT }}/server/scripts/cloud-scripts/zkcli.sh -zkhost localhost:{{ ZOOKEEPER_PORT }} -cmd ls /collections/{{ SOLR_COLLECTION }}"
-  ignore_errors: yes
-  register: SOLR_COLLECTION_EXISTS
+#- name: Check for existing solr collection enUS
+#  shell: "{{ SOLR_OPT }}/server/scripts/cloud-scripts/zkcli.sh -zkhost localhost:{{ ZOOKEEPER_PORT }} -cmd ls /collections/{{ SOLR_COLLECTION }}"
+#  ignore_errors: yes
+#  register: SOLR_COLLECTION_EXISTS
+#  changed_when: false
+#- name: Create collection in solr enUS
+#  shell: "{{ SOLR_OPT }}/bin/solr create -n computate -c {{ SOLR_COLLECTION }}"
+#  when: SOLR_COLLECTION_EXISTS.rc != 0
+
+- name: Upload computate configset to solr
+  kubernetes.core.k8s_exec:
+    pod: default-solrcloud-0
+    command: >-
+      /opt/solr/bin/solr zk upconfig -n computate -d /opt/solr/server/solr/configsets/computate -z 'default-solrcloud-zookeeper-client:2181'
+    namespace: "smartvillage"
+  register: solr_upconfig
   changed_when: false
-- name: Create collection in solr enUS
-  shell: "{{ SOLR_OPT }}/bin/solr create -n computate -c {{ SOLR_COLLECTION }}"
-  when: SOLR_COLLECTION_EXISTS.rc != 0
+- debug:
+    var: solr_upconfig
+
+- name: Create Solr collection
+  kubernetes.core.k8s_exec:
+    pod: default-solrcloud-0
+    command: >-
+      /opt/solr/bin/solr create_collection -c computate -n computate
+    namespace: "smartvillage"
+  register: create_collection
+  ignore_errors: True
+  changed_when: create_collection is not search("already exists")
+- name: Test create_collection success
+  fail:
+    msg: "{{ command_status }}"
+  when: create_collection.failed and create_collection is not search("already exists")
 
 #####################
 # Build application #
@@ -261,7 +315,9 @@
   shell: "mvn clean install"
   args:
     chdir: "{{ COMPUTATE_SRC }}"
+  when: MAVEN | bool
 - name: Build the source code in {{ SITE_SRC }}
-  shell: "mvn clean install"
+  shell: "mvn clean install -DskipTests"
   args:
     chdir: "{{ SITE_SRC }}"
+  when: MAVEN | bool

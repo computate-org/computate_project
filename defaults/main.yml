@@ -75,6 +75,8 @@ ENABLE_ARCHIVED: "{{ SITE_CONFIG.enableArchived | default(true) | lower }}"
 ENABLE_IMPORT_DATA: true
 # Enable code generation service
 ENABLE_CODE_GENERATION_SERVICE: false
+# Run mvn clean install
+MAVEN: true
 
 ######################
 # Zookeeper defaults #
@@ -158,6 +160,9 @@ JDBC_USERNAME: "{{ SITE_NAME }}"
 JDBC_PASSWORD: "{{ lookup('password', '/dev/null chars=ascii_letters,digits,hexdigits length=10') }}"
 # The PostgreSQL database name of the site. 
 JDBC_DATABASE: "{{ SITE_NAME }}"
+
+KAFKA_PORT: 9093
+
 # The Java main class of the site. 
 JAVA_MAIN_CLASS: "{{ SITE_JAVA_PACKAGE }}.vertx.AppVertx"
 # The base URL where the static files will point to.  
@@ -219,3 +224,12 @@ AUTH_SECRET: "..."
 AUTH_URL: "{{ 'https' if AUTH_PORT == 443 else 'http' }}://{{ AUTH_HOST_NAME }}{{ '' if AUTH_PORT == 443 else (':' + AUTH_PORT)}}/auth"
 # The Auth URL to retrieve tokens. 
 AUTH_TOKEN_URI: "/auth/realms/{{ AUTH_REALM }}/protocol/openid-connect/token"
+
+############################
+# OpenShift Secret Details #
+############################
+
+OPENSHIFT_NAMESPACE: smartvillage
+POSTGRES_SECRET: postgres-pguser-smartvillage
+KAFKA_SSL_KEYSTORE_SECRET: smartvillage-kafka
+KAFKA_SSL_TRUSTSTORE_SECRET: smartvillage-kafka-cluster-ca-cert
