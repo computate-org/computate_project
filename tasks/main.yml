@@ -149,19 +149,24 @@
     KAFKA_SSL_TRUSTSTORE_LOCATION: "{{ SITE_SRC }}/config/kafka-ca.p12"
 - name: Get JDBC_PASSWORD
   set_fact:
-    JDBC_PASSWORD: "{{ query('kubernetes.core.k8s', kind='Secret', resource_name=POSTGRES_SECRET, namespace=OPENSHIFT_NAMESPACE, validate_certs=false)[0].data.password | b64decode }}"
+    JDBC_PASSWORD: "{{ query('kubernetes.core.k8s', kind='Secret', resource_name=POSTGRES_SECRET, namespace=POSTGRES_NAMESPACE, validate_certs=false)[0].data.password | b64decode }}"
+  ignore_errors: true
 - name: Get KAFKA_SSL_KEYSTORE_PASSWORD
   set_fact:
-    KAFKA_SSL_KEYSTORE_PASSWORD: "{{ query('kubernetes.core.k8s', kind='Secret', resource_name=KAFKA_SSL_KEYSTORE_SECRET, namespace=OPENSHIFT_NAMESPACE, validate_certs=false)[0].data['user.password'] | b64decode }}"
+    KAFKA_SSL_KEYSTORE_PASSWORD: "{{ query('kubernetes.core.k8s', kind='Secret', resource_name=KAFKA_SSL_KEYSTORE_SECRET, namespace=KAFKA_NAMESPACE, validate_certs=false)[0].data['user.password'] | b64decode }}"
+  ignore_errors: true
 - name: Get KAFKA_SSL_KEYSTORE_P12
   set_fact:
-    KAFKA_SSL_KEYSTORE_P12: "{{ query('kubernetes.core.k8s', kind='Secret', resource_name=KAFKA_SSL_KEYSTORE_SECRET, namespace=OPENSHIFT_NAMESPACE, validate_certs=false)[0].data['user.p12'] }}"
+    KAFKA_SSL_KEYSTORE_P12: "{{ query('kubernetes.core.k8s', kind='Secret', resource_name=KAFKA_SSL_KEYSTORE_SECRET, namespace=KAFKA_NAMESPACE, validate_certs=false)[0].data['user.p12'] }}"
+  ignore_errors: true
 - name: Get KAFKA_SSL_TRUSTSTORE_PASSWORD
   set_fact:
-    KAFKA_SSL_TRUSTSTORE_PASSWORD: "{{ query('kubernetes.core.k8s', kind='Secret', resource_name=KAFKA_SSL_TRUSTSTORE_SECRET, namespace=OPENSHIFT_NAMESPACE, validate_certs=false)[0].data['ca.password'] | b64decode }}"
+    KAFKA_SSL_TRUSTSTORE_PASSWORD: "{{ query('kubernetes.core.k8s', kind='Secret', resource_name=KAFKA_SSL_TRUSTSTORE_SECRET, namespace=KAFKA_NAMESPACE, validate_certs=false)[0].data['ca.password'] | b64decode }}"
+  ignore_errors: true
 - name: Get KAFKA_SSL_TRUSTSTORE_P12
   set_fact:
-    KAFKA_SSL_TRUSTSTORE_P12: "{{ query('kubernetes.core.k8s', kind='Secret', resource_name=KAFKA_SSL_TRUSTSTORE_SECRET, namespace=OPENSHIFT_NAMESPACE, validate_certs=false)[0].data['ca.p12'] }}"
+    KAFKA_SSL_TRUSTSTORE_P12: "{{ query('kubernetes.core.k8s', kind='Secret', resource_name=KAFKA_SSL_TRUSTSTORE_SECRET, namespace=KAFKA_NAMESPACE, validate_certs=false)[0].data['ca.p12'] }}"
+  ignore_errors: true
 
 #################
 # Create config #
@@ -171,10 +176,12 @@
   copy:
     dest: "{{ KAFKA_SSL_KEYSTORE_LOCATION }}"
     content: "{{ KAFKA_SSL_KEYSTORE_P12 | b64decode }}"
+  ignore_errors: true
 - name: Write KAFKA_SSL_TRUSTSTORE_LOCATION
   copy:
     dest: "{{ KAFKA_SSL_TRUSTSTORE_LOCATION }}"
     content: "{{ KAFKA_SSL_TRUSTSTORE_P12 | b64decode }}"
+  ignore_errors: true
 - name: Check if config exists
   stat:
     path: "{{ item.SITE_SRC }}/config/{{ item.SITE_NAME }}.yml"
@@ -287,7 +294,7 @@
     pod: default-solrcloud-0
     command: >-
       /opt/solr/bin/solr zk upconfig -n computate -d /opt/solr/server/solr/configsets/computate -z 'default-solrcloud-zookeeper-client:2181'
-    namespace: "smartvillage"
+    namespace: "{{ SOLR_NAMESPACE }}"
   register: solr_upconfig
   changed_when: false
 - debug:
@@ -298,7 +305,7 @@
     pod: default-solrcloud-0
     command: >-
       /opt/solr/bin/solr create_collection -c computate -n computate
-    namespace: "smartvillage"
+    namespace: "{{ SOLR_NAMESPACE }}"
   register: create_collection
   ignore_errors: True
   changed_when: create_collection is not search("already exists")

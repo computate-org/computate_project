@@ -15,6 +15,8 @@ ENABLE_ANSIBLE: true
 ENABLE_LAUNCH: true
 ENABLE_CONFIG_TEMPLATE: true
 
+# The name of this application. 
+SITE_NAME: "..."
 # The path to the Ansible defaults for the application. 
 SITE_DEFAULTS: "{{ lookup('env', 'HOME') }}/.local/src/{{ SITE_NAME }}/local/defaults.yml"
 SITE_DEPENDENCIES_DEBIAN:
@@ -29,8 +31,8 @@ SITE_DEPENDENCIES: "{{ SITE_DEPENDENCIES_REDHAT if ansible_distribution_file_var
 SYSTEM_PYTHON: "{{ '/usr/bin/python' if lookup('file', '/usr/bin/python', errors='ignore') else '/usr/bin/python3' }}"
 # The path to the application python binary. 
 SITE_PYTHON: "~/python/bin/python"
-# The name of this application. 
-SITE_NAME: "..."
+# The short name of this application. 
+SITE_SHORT_NAME: "{{ SITE_NAME }}"
 # The main locale of this application. 
 SITE_LOCALE: en-US
 # The name of the language of the code. 
@@ -55,6 +57,7 @@ SITE_SERVICE: "watch-{{ SITE_NAME }}"
 SITE_SYSTEMD: "{{ '/usr/lib/systemd/system' if ansible_distribution_file_variety == 'RedHat' and (ansible_distribution_major_version | int) <= 7 else (lookup('env', 'HOME') + '/.config/systemd/user') }}/{{ SITE_SERVICE }}.service"
 # The main git repository for the project. 
 SITE_REPO: "git@github.com:{{ GITHUB_ORG }}/{{ SITE_NAME }}.git"
+
 # The name of this application. 
 SITE_STATIC_NAME: "{{ SITE_NAME }}-static"
 # The name of this application. 
@@ -95,13 +98,14 @@ SOLR_NAME: solr
 # The installation directory of Solr. 
 SOLR_OPT: "{{ lookup('env', 'HOME') }}/.local/opt/{{ SOLR_NAME }}"
 # The default hostname for the Solr search engine. 
-SOLR_HOST_NAME: localhost
+SOLR_HOST_NAME: solr-solr.apps-crc.testing
 # The default port that Solr runs. 
-SOLR_PORT: 8983
+SOLR_PORT: 443
 # The URL to the Solr collection. 
-SOLR_URL: "http://{{ SOLR_HOST_NAME }}:{{ SOLR_PORT }}/solr/{{ SOLR_COLLECTION }}"
+SOLR_URL: "https://{{ SOLR_HOST_NAME }}:{{ SOLR_PORT }}/solr/{{ SOLR_COLLECTION }}"
 # The URL to the Solr collection for the watched Java code API. 
-SOLR_URL_COMPUTATE: "http://{{ SOLR_HOST_NAME }}:{{ SOLR_PORT }}/solr/computate"
+SOLR_URL_COMPUTATE: "https://{{ SOLR_HOST_NAME }}:{{ SOLR_PORT }}/solr/computate"
+SOLR_SSL: true
 
 #######################
 # PostgreSQL defaults #
@@ -147,7 +151,7 @@ SITE_PORT: "8080"
 # The base URL of the site. 
 SITE_BASE_URL: "http://{{ SITE_HOST_NAME }}:{{ SITE_PORT }}"
 # The Solr collection of the site. 
-SOLR_COLLECTION: "{{ SITE_NAME }}"
+SOLR_COLLECTION: "{{ SITE_SHORT_NAME }}"
 # The timezone of the site. 
 SITE_ZONE: "America/Denver"
 # The PostgreSQL database host name. 
@@ -155,11 +159,11 @@ JDBC_HOST: "localhost"
 # The PostgreSQL database port. 
 JDBC_PORT: "5432"
 # The PostgreSQL database user name of the site. 
-JDBC_USERNAME: "{{ SITE_NAME }}"
+JDBC_USERNAME: "{{ SITE_SHORT_NAME }}"
 # The PostgreSQL database password of the site. 
 JDBC_PASSWORD: "{{ lookup('password', '/dev/null chars=ascii_letters,digits,hexdigits length=10') }}"
 # The PostgreSQL database name of the site. 
-JDBC_DATABASE: "{{ SITE_NAME }}"
+JDBC_DATABASE: "{{ SITE_SHORT_NAME }}"
 
 KAFKA_PORT: 9093
 
@@ -230,6 +234,9 @@ AUTH_TOKEN_URI: "/auth/realms/{{ AUTH_REALM }}/protocol/openid-connect/token"
 ############################
 
 OPENSHIFT_NAMESPACE: smartvillage
+POSTGRES_NAMESPACE: postgres
+SOLR_NAMESPACE: solr
+KAFKA_NAMESPACE: kafka
 POSTGRES_SECRET: postgres-pguser-smartvillage
-KAFKA_SSL_KEYSTORE_SECRET: smartvillage-kafka
-KAFKA_SSL_TRUSTSTORE_SECRET: smartvillage-kafka-cluster-ca-cert
+KAFKA_SSL_KEYSTORE_SECRET: "{{ SITE_SHORT_NAME }}-kafka"
+KAFKA_SSL_TRUSTSTORE_SECRET: default-cluster-ca-cert
