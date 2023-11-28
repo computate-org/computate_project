@@ -291,9 +291,9 @@
 
 - name: Upload computate configset to solr
   kubernetes.core.k8s_exec:
-    pod: default-solrcloud-0
+    pod: solr-0
     command: >-
-      /opt/solr/bin/solr zk upconfig -n computate -d /opt/solr/server/solr/configsets/computate -z 'default-solrcloud-zookeeper-client:2181'
+      /opt/solr/bin/solr zk upconfig -n computate -d /opt/solr/server/solr/configsets/computate -z 'zookeeper.zookeeper.svc:2181'
     namespace: "{{ SOLR_NAMESPACE }}"
   register: solr_upconfig
   changed_when: false
@@ -302,7 +302,7 @@
 
 - name: Create Solr collection
   kubernetes.core.k8s_exec:
-    pod: default-solrcloud-0
+    pod: solr-0
     command: >-
       /opt/solr/bin/solr create_collection -c computate -n computate
     namespace: "{{ SOLR_NAMESPACE }}"

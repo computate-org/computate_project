@@ -20,11 +20,9 @@ SITE_NAME: "..."
 # The path to the Ansible defaults for the application. 
 SITE_DEFAULTS: "{{ lookup('env', 'HOME') }}/.local/src/{{ SITE_NAME }}/local/defaults.yml"
 SITE_DEPENDENCIES_DEBIAN:
-  - openjdk-11-jdk
-  - maven
+  - openjdk-17-jdk
 SITE_DEPENDENCIES_REDHAT:
-  - java-11-openjdk
-  - maven
+  - java-17-openjdk
 SITE_DEPENDENCIES: "{{ SITE_DEPENDENCIES_REDHAT if ansible_distribution_file_variety == 'RedHat' else (SITE_DEPENDENCIES_DEBIAN if ansible_distribution_file_variety == 'Debian' else SITE_DEPENDENCIES_REDHAT) }}"
 
 # The path to the system python binary. 
