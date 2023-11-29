@@ -141,7 +141,6 @@
 
 - name: Set some facts
   set_fact:
-    KAFKA_BROKERS: "localhost:{{ KAFKA_PORT }}"
     KAFKA_SECURITY_PROTOCOL: SSL
     KAFKA_SSL_KEYSTORE_TYPE: pkcs12
     KAFKA_SSL_KEYSTORE_LOCATION: "{{ SITE_SRC }}/config/kafka-user.p12"
@@ -300,7 +299,35 @@
 - debug:
     var: solr_upconfig
 
-- name: Create Solr collection
+- name: Create Solr computate collection
+  kubernetes.core.k8s_exec:
+    pod: solr-0
+    command: >-
+      /opt/solr/bin/solr create_collection -c computate -n computate
+    namespace: "{{ SOLR_NAMESPACE }}"
+  register: create_computate_collection
+  ignore_errors: True
+  changed_when: create_computate_collection is not search("already exists")
+- name: Test create_computate_collection success
+  fail:
+    msg: "{{ command_status }}"
+  when: create_computate_collection.failed and create_computate_collection is not search("already exists")
+
+- name: Create Solr {{ SOLR_COLLECTION }} collection
+  kubernetes.core.k8s_exec:
+    pod: solr-0
+    command: >-
+      /opt/solr/bin/solr create_collection -c {{ SOLR_COLLECTION }} -n computate
+    namespace: "{{ SOLR_NAMESPACE }}"
+  register: create_collection
+  ignore_errors: True
+  changed_when: create_collection is not search("already exists")
+- name: Test create {{ SOLR_COLLECTION }} collection success
+  fail:
+    msg: "{{ command_status }}"
+  when: create_collection.failed and create_collection is not search("already exists")
+
+- name: Create Solr computate collection
   kubernetes.core.k8s_exec:
     pod: solr-0
     command: >-
