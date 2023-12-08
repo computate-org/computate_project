@@ -54,6 +54,8 @@ SITE_CONFIG: "{{ SITE_SRC }}/config/{{ SITE_NAME }}.config"
 SITE_CONFIG_enUS: "{{ SITE_SRC }}/config/{{ SITE_NAME }}-enUS.config"
 # The systemd service name for project that generates and translates most of the code. 
 SITE_SERVICE: "watch-{{ SITE_NAME }}"
+# Whether to enable systemd service. 
+SYSTEMD_ENABLED: true
 # The systemd service file for project that generates and translates most of the code. 
 SITE_SYSTEMD: "{{ '/usr/lib/systemd/system' if ansible_distribution_file_variety == 'RedHat' and (ansible_distribution_major_version | int) <= 7 else (lookup('env', 'HOME') + '/.config/systemd/user') }}/{{ SITE_SERVICE }}.service"
 # The main git repository for the project. 
