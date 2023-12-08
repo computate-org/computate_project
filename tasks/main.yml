@@ -127,7 +127,7 @@
     src: project_systemd.service
     dest: "{{SITE_SYSTEMD }}"
   loop: "{{ SITE_SERVICES }}"
-  when: ENABLE_CODE_GENERATION_SERVICE and ansible_pkg_mgr != 'homebrew'
+  when: SYSTEMD_ENABLED and ENABLE_CODE_GENERATION_SERVICE and ansible_pkg_mgr != 'homebrew'
 - name: Create the {{ item.SITE_NAME }} config dirs. 
   file:
     name: "{{ item.SITE_SRC }}/config"
@@ -197,7 +197,7 @@
     daemon_reload: yes
     scope: "{{ 'system' if ansible_distribution_file_variety == 'RedHat' and (ansible_distribution_major_version | int) <= 7 else 'user' }}"
   loop: "{{ SITE_SERVICES }}"
-  when: ENABLE_CODE_GENERATION_SERVICE and ansible_pkg_mgr != 'homebrew'
+  when: SYSTEMD_ENABLED and ENABLE_CODE_GENERATION_SERVICE and ansible_pkg_mgr != 'homebrew'
 - name: Start and enable the {{ item.SITE_NAME }} services. 
   service:
     name: "watch-{{ item.SITE_NAME }}"
@@ -205,20 +205,23 @@
     state: restarted
     scope: "{{ 'system' if ansible_distribution_file_variety == 'RedHat' and (ansible_distribution_major_version | int) <= 7 else 'user' }}"
   loop: "{{ SITE_SERVICES }}"
-  when: ENABLE_CODE_GENERATION_SERVICE and ansible_pkg_mgr != 'homebrew'
+  when: SYSTEMD_ENABLED and ENABLE_CODE_GENERATION_SERVICE and ansible_pkg_mgr != 'homebrew'
 - name: Create the {{ SITE_NAME }} launchd service {{ SITE_SYSTEMD }}.
   template:
     src: project_launchd_service
     dest: "~/Library/LaunchAgents/org.project.plist"
   loop: "{{ SITE_SERVICES }}"
-  when: ENABLE_CODE_GENERATION_SERVICE and ansible_pkg_mgr == 'homebrew'
+  when: SYSTEMD_ENABLED and ENABLE_CODE_GENERATION_SERVICE and ansible_pkg_mgr == 'homebrew'
 - name: Load the {{ SITE_NAME }} launchd service {{ SITE_SYSTEMD }}.
   shell: launchctl load ~/Library/LaunchAgents/org.project.plist
-  when: ENABLE_CODE_GENERATION_SERVICE and ansible_pkg_mgr == 'homebrew'
+  when: SYSTEMD_ENABLED and ENABLE_CODE_GENERATION_SERVICE and ansible_pkg_mgr == 'homebrew'
 - name: Start the {{ SITE_NAME }} launchd service {{ SITE_SYSTEMD }}.
   shell: launchctl start org.project
-  when: ENABLE_CODE_GENERATION_SERVICE and ansible_pkg_mgr == 'homebrew'
+  when: SYSTEMD_ENABLED and ENABLE_CODE_GENERATION_SERVICE and ansible_pkg_mgr == 'homebrew'
   changed_when: false
+- name: Output command to run without systemd
+  debug:
+    msg: env SITE_NAME={{ item.SITE_NAME }} SITE_PATH={{ item.SITE_SRC }} COMPUTATE_SRC={{ COMPUTATE_SRC }} SITE_LANG={{ SITE_LANG }} {{ COMPUTATE_SRC }}/bin/enUS/watch.sh
 
 ##############
 # PostgreSQL #
