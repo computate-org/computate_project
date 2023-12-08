@@ -18,7 +18,6 @@ ENABLE_CONFIG_TEMPLATE: true
 # The name of this application. 
 SITE_NAME: "..."
 # The path to the Ansible defaults for the application. 
-SITE_DEFAULTS: "{{ lookup('env', 'HOME') }}/.local/src/{{ SITE_NAME }}/local/defaults.yml"
 SITE_DEPENDENCIES_DEBIAN:
   - openjdk-17-jdk
 SITE_DEPENDENCIES_REDHAT:
@@ -35,15 +34,19 @@ SITE_SHORT_NAME: "{{ SITE_NAME }}"
 SITE_LOCALE: en-US
 # The name of the language of the code. 
 LANGUAGE_NAME: "{{ SITE_LOCALE | replace('-', '') }}"
-# The paths to the internationalization for this project. 
-I18N_PATHS: ["{{ lookup('env', 'HOME') }}/.local/src/computate/src/main/resources/org/computate/i18n/i18n_enUS.yml"]
 # The GitHub organization for this project. 
 GITHUB_ORG: "..."
-# The default source code directory for the computate application which helps generate and translate most the code. 
-COMPUTATE_SRC: "{{ lookup('env', 'HOME') }}/.local/src/computate"
-# The default source code directory for the project. 
-SITE_SRC: "{{ lookup('env', 'HOME') }}/.local/src/{{ SITE_NAME }}"
+# The default source code prefix directory for the project. 
+SITE_PREFIX: "{{ lookup('env', 'HOME') }}/.local/src"
 # The default language of the project code which is US English. 
+SITE_SRC: "{{ SITE_PREFIX }}/{{ SITE_NAME }}"
+# The site defaults yaml file. 
+SITE_DEFAULTS: "{{ SITE_SRC }}/local/defaults.yml"
+# The default language of the project code which is US English. 
+# The paths to the internationalization for this project. 
+I18N_PATHS: ["{{ SITE_PREFIX }}/computate/src/main/resources/org/computate/i18n/i18n_enUS.yml"]
+# The default source code directory for the computate application which helps generate and translate most the code. 
+COMPUTATE_SRC: "{{ SITE_PREFIX }}/computate"
 SITE_LANG: "enUS"
 # The default config file for the project. 
 SITE_CONFIG: "{{ SITE_SRC }}/config/{{ SITE_NAME }}.config"
@@ -94,8 +97,6 @@ ZOOKEEPER_PORT: 2181
 
 SOLR_NAME: solr
 # The installation directory of Solr. 
-SOLR_OPT: "{{ lookup('env', 'HOME') }}/.local/opt/{{ SOLR_NAME }}"
-# The default hostname for the Solr search engine. 
 SOLR_HOST_NAME: solr-solr.apps-crc.testing
 # The default port that Solr runs. 
 SOLR_PORT: 443
@@ -111,8 +112,6 @@ SOLR_SSL: true
 
 POSTGRES_NAME: postgres
 # The installation directory of PostgreSQL. 
-POSTGRES_OPT: "{{ lookup('env', 'HOME') }}/.local/opt/{{ POSTGRES_NAME }}"
-# The default hostname for the PostreSQL database. 
 POSTGRES_HOST_NAME: "localhost"
 # The default username that the PostgreSQL server runs with. 
 POSTGRES_BECOME_USER: "{{ USER_NAME }}"
