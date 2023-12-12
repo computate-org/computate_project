@@ -17,6 +17,9 @@
 {% if RUN_ARTICLE_GENERATOR %}
         <mapEntry key="RUN_ARTICLE_GENERATOR" value="true"/>
 {% endif %}
+{% if RUN_SQL_GENERATOR %}
+        <mapEntry key="RUN_FIWARE_GENERATOR" value="true"/>
+{% endif %}
     </mapAttribute>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_ATTR_USE_ARGFILE" value="false"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_EXCLUDE_TEST_CODE" value="true"/>
