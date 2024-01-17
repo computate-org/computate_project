@@ -235,6 +235,7 @@ AUTH_TOKEN_URI: "/auth/realms/{{ AUTH_REALM }}/protocol/openid-connect/token"
 OPENSHIFT_NAMESPACE: smartvillage
 POSTGRES_NAMESPACE: postgres
 SOLR_NAMESPACE: solr
+ZOOKEEPER_NAMESPACE: zookeeper
 KAFKA_NAMESPACE: kafka
 POSTGRES_SECRET: postgres-pguser-smartvillage
 KAFKA_SSL_KEYSTORE_SECRET: "{{ SITE_SHORT_NAME }}-kafka"
