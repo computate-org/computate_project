@@ -80,7 +80,7 @@ ENABLE_ARCHIVED: "{{ SITE_CONFIG.enableArchived | default(true) | lower }}"
 # Enable data import in the site. 
 ENABLE_IMPORT_DATA: true
 # Enable code generation service
-ENABLE_CODE_GENERATION_SERVICE: false
+ENABLE_CODE_GENERATION_SERVICE: true
 # Run mvn clean install
 MAVEN: true
 
