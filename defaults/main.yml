@@ -136,13 +136,13 @@ NUMBER_EXECUTORS: 5
 # The domain name of the site. 
 DOMAIN_NAME: "example.com"
 # The domain package name of the site. 
-DOMAIN_PACKAGE_NAME: "{{ SITE_JAVA_PACKAGE }}"
+DOMAIN_PACKAGE_NAME: "{{ DOMAIN_PACKAGE_NAME }}"
 # The /src/main/java folder for the main Java source code. 
 SUFFIX_SRC_MAIN_JAVA: /src/main/java
 # The /src/gen/java folder for the generated Java source code. 
 SUFFIX_SRC_GEN_JAVA: /src/gen/java
 # The relative paths in the project to watch for changes. 
-RELATIVE_PATHS_TO_WATCH: src/main/java/{{ SITE_JAVA_PACKAGE | replace('.', '/') }}
+RELATIVE_PATHS_TO_WATCH: src/main/java/{{ DOMAIN_PACKAGE_NAME | replace('.', '/') }}
 # The host name of the site. 
 SITE_HOST_NAME: "localhost"
 # The port of the site. 
@@ -167,7 +167,7 @@ JDBC_DATABASE: "{{ SITE_SHORT_NAME }}"
 KAFKA_PORT: 9093
 
 # The Java main class of the site. 
-JAVA_MAIN_CLASS: "{{ SITE_JAVA_PACKAGE }}.vertx.AppVertx"
+JAVA_MAIN_CLASS: "{{ DOMAIN_PACKAGE_NAME }}.vertx.AppVertx"
 # The base URL where the static files will point to.  
 STATIC_BASE_URL: "{{ SITE_BASE_URL }}/static"
 # The path to the static files. 
