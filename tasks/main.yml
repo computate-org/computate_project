@@ -348,11 +348,6 @@
 # Build application #
 #####################
 
-- name: Build the source code in {{ COMPUTATE_SRC }}
-  shell: "mvn clean install"
-  args:
-    chdir: "{{ COMPUTATE_SRC }}"
-  when: MAVEN | bool
 - name: Build the source code in {{ SITE_SRC }}
   shell: "mvn clean install -DskipTests"
   args:
