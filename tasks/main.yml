@@ -118,6 +118,15 @@
     dest: "{{ SITE_SRC | dirname }}/.metadata/.plugins/org.eclipse.debug.core/.launches/{{ SITE_NAME }}-OpenApi3Generator.launch"
   when: ENABLE_LAUNCH
 
+- name: Query Apache Solr for all Java classes
+  uri: 
+    url: "{{ SOLR_URL_COMPUTATE }}/select?rows=300&q=*:*&fq=partEstClasse_indexed_boolean:true&fq=siteNom_indexed_string:smartabyar-smartvillage&fq=classeApiMethodes_enUS_indexed_strings:SearchPage&fq=-classeNomSimple_enUS_indexed_string:SiteUser&sort=classSort_indexed_int%20asc"
+    validate_certs: false
+  register: JAVA_CLASSES_RESPONSE
+- name: 
+  set_fact: 
+    JAVA_CLASSES: "{{ JAVA_CLASSES_RESPONSE.json.response.docs }}"
+
 ###########
 # Service #
 ###########
